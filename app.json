@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "AI Forester Field Companion",
+    "slug": "ai-forester-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icons/icon.png",
+    "userInterfaceStyle": "light",
+    "sdkVersion": "52.0.0",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#2F855A"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icons/adaptive-icon.png",
+        "backgroundColor": "#2F855A"
+      }
+    },
+    "web": {
+      "favicon": "./assets/icons/favicon.png"
+    },
+    "newArchEnabled": true
+  }
+}

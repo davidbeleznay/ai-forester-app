@@ -1,0 +1,16 @@
+# Expo & React Native
+node_modules/
+.expo/
+.expo-shared/
+
+# Build artifacts (if you eject)
+ios/
+android/
+
+# Logs
+npm-debug.log*
+expo-debug.log*
+
+# OS / Editor cruft
+.DS_Store
+.vscode/

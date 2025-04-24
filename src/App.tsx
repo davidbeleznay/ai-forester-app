@@ -1,6 +1,6 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import HomeSettingsTabs from './app/components/HomeSettingsTabs';
+import HomeSettingsTabs from './components/HomeSettingsTabs';
 
 export default function App() {
   return (
