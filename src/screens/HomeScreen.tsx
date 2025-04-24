@@ -15,7 +15,7 @@ import {
   Camera, 
   Layers, 
   AlertTriangle
-} from 'react-native-feather';
+} from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, FIELD_TOOLS, DEFAULT_SETTINGS } from '../config/constants';
 import { getFieldCards, FieldCard } from '../utils/storage';
