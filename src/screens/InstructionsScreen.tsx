@@ -7,12 +7,17 @@ import {
   TouchableOpacity,
   SafeAreaView
 } from 'react-native';
-import * as LucideIcons from 'lucide-react-native';
+// Import the icons directly to use as dynamic components
+import { icons } from 'lucide-react-native';
 import { COLORS, SPACING } from '../config/constants';
 import { Path, Svg } from 'react-native-svg';
 
-// Use specific icons
-const { Droplets, Camera, BookOpen, Info, ChevronRight } = LucideIcons;
+// Lucide icon component
+const LucideIcon = ({ name, color, size }: { name: string, color: string, size: number }) => {
+  const IconComponent = icons[name];
+  if (!IconComponent) return null;
+  return <IconComponent color={color} size={size} />;
+};
 
 // Custom icon component for tools that don't have direct icons
 const CustomIcon = ({ name, color, size }: { name: string, color: string, size: number }) => {
@@ -73,9 +78,9 @@ const ToolGuide: React.FC<ToolGuideProps> = ({
   >
     <View style={[styles.toolGuideIcon, { backgroundColor: iconBgColor }]}>
       {icon === 'droplet' ? (
-        <Droplets width={16} height={16} stroke={iconColor} />
+        <LucideIcon name="droplets" color={iconColor} size={16} />
       ) : icon === 'camera' ? (
-        <Camera width={16} height={16} stroke={iconColor} />
+        <LucideIcon name="camera" color={iconColor} size={16} />
       ) : (
         <CustomIcon name={icon} color={iconColor} size={16} />
       )}
@@ -84,7 +89,7 @@ const ToolGuide: React.FC<ToolGuideProps> = ({
       <Text style={styles.toolGuideTitle}>{title}</Text>
       <Text style={styles.toolGuideDescription}>{description}</Text>
     </View>
-    <ChevronRight width={16} height={16} stroke={COLORS.gray[400]} />
+    <LucideIcon name="chevron-right" color={COLORS.gray[400]} size={16} />
   </TouchableOpacity>
 );
 
@@ -147,7 +152,7 @@ const InstructionsScreen = () => {
             <View style={styles.card}>
               <View style={styles.tipItem}>
                 <View style={styles.tipHeader}>
-                  <Info width={18} height={18} stroke={COLORS.primary} />
+                  <LucideIcon name="info" color={COLORS.primary} size={18} />
                   <Text style={styles.tipTitle}>Offline Usage</Text>
                 </View>
                 <Text style={styles.tipContent}>
@@ -159,7 +164,7 @@ const InstructionsScreen = () => {
               
               <View style={styles.tipItem}>
                 <View style={styles.tipHeader}>
-                  <Info width={18} height={18} stroke={COLORS.primary} />
+                  <LucideIcon name="info" color={COLORS.primary} size={18} />
                   <Text style={styles.tipTitle}>Data Backup</Text>
                 </View>
                 <Text style={styles.tipContent}>
@@ -171,7 +176,7 @@ const InstructionsScreen = () => {
               
               <View style={styles.tipItem}>
                 <View style={styles.tipHeader}>
-                  <Info width={18} height={18} stroke={COLORS.primary} />
+                  <LucideIcon name="info" color={COLORS.primary} size={18} />
                   <Text style={styles.tipTitle}>Battery Optimization</Text>
                 </View>
                 <Text style={styles.tipContent}>
@@ -186,7 +191,7 @@ const InstructionsScreen = () => {
             
             <View style={styles.card}>
               <View style={styles.referenceItem}>
-                <BookOpen width={18} height={18} stroke={COLORS.primary} />
+                <LucideIcon name="book-open" color={COLORS.primary} size={18} />
                 <View style={styles.referenceContent}>
                   <Text style={styles.referenceTitle}>Culvert Sizing Guidelines</Text>
                   <TouchableOpacity>
@@ -198,7 +203,7 @@ const InstructionsScreen = () => {
               <View style={styles.divider} />
               
               <View style={styles.referenceItem}>
-                <BookOpen width={18} height={18} stroke={COLORS.primary} />
+                <LucideIcon name="book-open" color={COLORS.primary} size={18} />
                 <View style={styles.referenceContent}>
                   <Text style={styles.referenceTitle}>Stream Classification Reference</Text>
                   <TouchableOpacity>
@@ -210,7 +215,7 @@ const InstructionsScreen = () => {
               <View style={styles.divider} />
               
               <View style={styles.referenceItem}>
-                <BookOpen width={18} height={18} stroke={COLORS.primary} />
+                <LucideIcon name="book-open" color={COLORS.primary} size={18} />
                 <View style={styles.referenceContent}>
                   <Text style={styles.referenceTitle}>Field Assessment Checklists</Text>
                   <TouchableOpacity>
@@ -227,21 +232,21 @@ const InstructionsScreen = () => {
             <View style={styles.card}>
               <TouchableOpacity style={styles.supportItem}>
                 <Text style={styles.supportTitle}>Contact Support</Text>
-                <ChevronRight width={16} height={16} stroke={COLORS.gray[400]} />
+                <LucideIcon name="chevron-right" color={COLORS.gray[400]} size={16} />
               </TouchableOpacity>
               
               <View style={styles.divider} />
               
               <TouchableOpacity style={styles.supportItem}>
                 <Text style={styles.supportTitle}>Report a Bug</Text>
-                <ChevronRight width={16} height={16} stroke={COLORS.gray[400]} />
+                <LucideIcon name="chevron-right" color={COLORS.gray[400]} size={16} />
               </TouchableOpacity>
               
               <View style={styles.divider} />
               
               <TouchableOpacity style={styles.supportItem}>
                 <Text style={styles.supportTitle}>Frequently Asked Questions</Text>
-                <ChevronRight width={16} height={16} stroke={COLORS.gray[400]} />
+                <LucideIcon name="chevron-right" color={COLORS.gray[400]} size={16} />
               </TouchableOpacity>
             </View>
           </View>
