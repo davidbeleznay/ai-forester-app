@@ -8,15 +8,13 @@ import {
   FlatList,
   SafeAreaView
 } from 'react-native';
-import * as LucideIcons from 'lucide-react-native';
+// Import the icons directly to use as dynamic components
+import { icons } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, FIELD_TOOLS, DEFAULT_SETTINGS } from '../config/constants';
 import { getFieldCards, FieldCard } from '../utils/storage';
 import ConnectivityStatus from '../components/ConnectivityStatus';
 import { Path, Svg } from 'react-native-svg';
-
-// Use specific icons
-const { Droplets, Wind, Thermometer, Camera, Layers, AlertTriangle } = LucideIcons;
 
 // Custom icon component for tools that don't have direct icons
 const CustomIcon = ({ name, color, size }: { name: string, color: string, size: number }) => {
@@ -63,6 +61,13 @@ const CustomIcon = ({ name, color, size }: { name: string, color: string, size: 
     default:
       return null;
   }
+};
+
+// Lucide icon component
+const LucideIcon = ({ name, color, size }: { name: string, color: string, size: number }) => {
+  const IconComponent = icons[name];
+  if (!IconComponent) return null;
+  return <IconComponent color={color} size={size} />;
 };
 
 const HomeScreen = () => {
@@ -127,7 +132,7 @@ const HomeScreen = () => {
     
     switch (item.type) {
       case 'culvert-sizing':
-        iconName = 'droplet';
+        iconName = 'droplets';
         iconColor = COLORS.danger;
         iconBgColor = COLORS.danger + '20'; // 20% opacity
         break;
@@ -153,10 +158,8 @@ const HomeScreen = () => {
         onPress={() => console.log('View card:', item.id)}
       >
         <View style={[styles.cardIcon, { backgroundColor: iconBgColor }]}>
-          {iconName === 'droplet' ? (
-            <Droplets width={20} height={20} stroke={iconColor} />
-          ) : iconName === 'camera' ? (
-            <Camera width={20} height={20} stroke={iconColor} />
+          {iconName === 'droplets' || iconName === 'camera' ? (
+            <LucideIcon name={iconName} color={iconColor} size={20} />
           ) : (
             <CustomIcon name={iconName} color={iconColor} size={20} />
           )}
@@ -186,16 +189,16 @@ const HomeScreen = () => {
           {/* Location Bar */}
           <View style={styles.locationBar}>
             <View style={styles.locationInfo}>
-              <Droplets width={18} height={18} stroke={COLORS.primary} />
+              <LucideIcon name="droplets" color={COLORS.primary} size={18} />
               <Text style={styles.locationText}>{weather.location}</Text>
             </View>
             <View style={styles.weatherInfo}>
               <View style={styles.weatherItem}>
-                <Wind width={16} height={16} stroke={COLORS.primary} />
+                <LucideIcon name="wind" color={COLORS.primary} size={16} />
                 <Text style={styles.weatherText}>{weather.windSpeed} km/h</Text>
               </View>
               <View style={styles.weatherItem}>
-                <Thermometer width={16} height={16} stroke={COLORS.primary} />
+                <LucideIcon name="thermometer" color={COLORS.primary} size={16} />
                 <Text style={styles.weatherText}>{weather.temperature}°C</Text>
               </View>
             </View>
@@ -246,13 +249,13 @@ const HomeScreen = () => {
                     ]}
                   >
                     {tool.icon === 'droplet' ? (
-                      <Droplets width={18} height={18} stroke={tool.iconColor} />
+                      <LucideIcon name="droplets" color={tool.iconColor} size={18} />
                     ) : tool.icon === 'camera' ? (
-                      <Camera width={18} height={18} stroke={tool.iconColor} />
+                      <LucideIcon name="camera" color={tool.iconColor} size={18} />
                     ) : tool.icon === 'layers' ? (
-                      <Layers width={18} height={18} stroke={tool.iconColor} />
+                      <LucideIcon name="layers" color={tool.iconColor} size={18} />
                     ) : tool.icon === 'alert-triangle' ? (
-                      <AlertTriangle width={18} height={18} stroke={tool.iconColor} />
+                      <LucideIcon name="alert-triangle" color={tool.iconColor} size={18} />
                     ) : (
                       <CustomIcon name={tool.icon} color={tool.iconColor} size={18} />
                     )}
