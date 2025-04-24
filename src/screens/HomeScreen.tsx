@@ -8,19 +8,15 @@ import {
   FlatList,
   SafeAreaView
 } from 'react-native';
-import { 
-  Droplets, 
-  Wind, 
-  Thermometer, 
-  Camera, 
-  Layers, 
-  AlertTriangle
-} from 'lucide-react-native';
+import * as LucideIcons from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, FIELD_TOOLS, DEFAULT_SETTINGS } from '../config/constants';
 import { getFieldCards, FieldCard } from '../utils/storage';
 import ConnectivityStatus from '../components/ConnectivityStatus';
 import { Path, Svg } from 'react-native-svg';
+
+// Use specific icons
+const { Droplets, Wind, Thermometer, Camera, Layers, AlertTriangle } = LucideIcons;
 
 // Custom icon component for tools that don't have direct icons
 const CustomIcon = ({ name, color, size }: { name: string, color: string, size: number }) => {
