@@ -15,11 +15,12 @@ import {
   Camera, 
   Layers, 
   AlertTriangle
-} from 'react-native-feather';
+} from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, FIELD_TOOLS, DEFAULT_SETTINGS } from '../config/constants';
 import { getFieldCards, FieldCard } from '../utils/storage';
 import ConnectivityStatus from '../components/ConnectivityStatus';
+import { Path, Svg } from 'react-native-svg';
 
 // Custom icon component for tools that don't have direct icons
 const CustomIcon = ({ name, color, size }: { name: string, color: string, size: number }) => {
@@ -67,9 +68,6 @@ const CustomIcon = ({ name, color, size }: { name: string, color: string, size: 
       return null;
   }
 };
-
-// Import these at the top of your file
-import { Path, Svg } from 'react-native-svg';
 
 const HomeScreen = () => {
   const navigation = useNavigation();

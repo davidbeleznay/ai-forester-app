@@ -13,7 +13,7 @@ import {
   BookOpen, 
   Info,
   ChevronRight
-} from 'react-native-feather';
+} from 'lucide-react-native';
 import { COLORS, SPACING } from '../config/constants';
 import { Path, Svg } from 'react-native-svg';
 

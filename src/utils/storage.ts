@@ -1,5 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { STORAGE_KEYS, DEFAULT_SETTINGS } from '../config/constants';
+// Mock implementation of storage.ts while AsyncStorage is being resolved
+import { DEFAULT_SETTINGS } from '../config/constants';
 
 /**
  * Base interface for field cards
@@ -65,34 +65,55 @@ export interface UserSettings {
   };
 }
 
-/**
- * Generic method to store data
- * @param key - Storage key
- * @param value - Data to store
- */
-export const storeData = async <T>(key: string, value: T): Promise<void> => {
-  try {
-    const jsonValue = JSON.stringify(value);
-    await AsyncStorage.setItem(key, jsonValue);
-  } catch (error) {
-    console.error(`Error storing data for key ${key}:`, error);
-    throw error;
+// Mock data for testing
+const mockFieldCards: FieldCard[] = [
+  {
+    id: '1',
+    type: 'culvert-sizing',
+    name: 'Example Creek Culvert',
+    date: '2025-04-22',
+    location: {
+      latitude: 49.1659,
+      longitude: -123.9401,
+      name: 'Example Creek'
+    },
+    createdAt: Date.now() - 86400000, // 1 day ago
+    updatedAt: Date.now() - 86400000
+  },
+  {
+    id: '2',
+    type: 'tree-health',
+    name: 'Douglas Fir Assessment',
+    date: '2025-04-23',
+    location: {
+      latitude: 49.1670,
+      longitude: -123.9410,
+      name: 'North Forest'
+    },
+    createdAt: Date.now() - 43200000, // 12 hours ago
+    updatedAt: Date.now() - 43200000
+  },
+  {
+    id: '3',
+    type: 'wolman-pebble',
+    name: 'Stream Bed Analysis',
+    date: '2025-04-24',
+    location: {
+      latitude: 49.1680,
+      longitude: -123.9420,
+      name: 'Mountain Creek'
+    },
+    createdAt: Date.now() - 3600000, // 1 hour ago
+    updatedAt: Date.now() - 3600000
   }
-};
+];
 
 /**
- * Generic method to retrieve data
- * @param key - Storage key
- * @returns The stored data or null if not found
+ * Retrieve all field cards
+ * @returns Array of field cards
  */
-export const getData = async <T>(key: string): Promise<T | null> => {
-  try {
-    const jsonValue = await AsyncStorage.getItem(key);
-    return jsonValue != null ? JSON.parse(jsonValue) as T : null;
-  } catch (error) {
-    console.error(`Error retrieving data for key ${key}:`, error);
-    return null;
-  }
+export const getFieldCards = async (): Promise<FieldCard[]> => {
+  return Promise.resolve([...mockFieldCards]);
 };
 
 /**
@@ -100,48 +121,8 @@ export const getData = async <T>(key: string): Promise<T | null> => {
  * @param card - The field card to save
  */
 export const saveFieldCard = async (card: FieldCard): Promise<void> => {
-  try {
-    // First get all existing cards
-    const existingCards = await getFieldCards();
-    
-    // Check if this is an update or a new card
-    const cardIndex = existingCards.findIndex(c => c.id === card.id);
-    
-    if (cardIndex >= 0) {
-      // Update existing card
-      existingCards[cardIndex] = {
-        ...card,
-        updatedAt: Date.now(),
-      };
-    } else {
-      // Add new card
-      existingCards.push({
-        ...card,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      });
-    }
-    
-    // Save the updated cards
-    await storeData(STORAGE_KEYS.FIELD_CARDS, existingCards);
-  } catch (error) {
-    console.error('Error saving field card:', error);
-    throw error;
-  }
-};
-
-/**
- * Retrieve all field cards
- * @returns Array of field cards
- */
-export const getFieldCards = async (): Promise<FieldCard[]> => {
-  try {
-    const cards = await getData<FieldCard[]>(STORAGE_KEYS.FIELD_CARDS);
-    return cards || [];
-  } catch (error) {
-    console.error('Error retrieving field cards:', error);
-    return [];
-  }
+  console.log('Mock saveFieldCard called with:', card);
+  return Promise.resolve();
 };
 
 /**
@@ -149,14 +130,8 @@ export const getFieldCards = async (): Promise<FieldCard[]> => {
  * @param cardId - ID of the card to delete
  */
 export const deleteFieldCard = async (cardId: string): Promise<void> => {
-  try {
-    const existingCards = await getFieldCards();
-    const updatedCards = existingCards.filter(card => card.id !== cardId);
-    await storeData(STORAGE_KEYS.FIELD_CARDS, updatedCards);
-  } catch (error) {
-    console.error(`Error deleting field card ${cardId}:`, error);
-    throw error;
-  }
+  console.log('Mock deleteFieldCard called with ID:', cardId);
+  return Promise.resolve();
 };
 
 /**
@@ -165,14 +140,8 @@ export const deleteFieldCard = async (cardId: string): Promise<void> => {
  * @returns The field card or null if not found
  */
 export const getFieldCardById = async <T extends FieldCard>(cardId: string): Promise<T | null> => {
-  try {
-    const cards = await getFieldCards();
-    const card = cards.find(c => c.id === cardId);
-    return card as T || null;
-  } catch (error) {
-    console.error(`Error retrieving field card ${cardId}:`, error);
-    return null;
-  }
+  const card = mockFieldCards.find(c => c.id === cardId);
+  return Promise.resolve(card as T || null);
 };
 
 /**
@@ -180,12 +149,8 @@ export const getFieldCardById = async <T extends FieldCard>(cardId: string): Pro
  * @param settings - User settings to save
  */
 export const saveUserSettings = async (settings: UserSettings): Promise<void> => {
-  try {
-    await storeData(STORAGE_KEYS.USER_SETTINGS, settings);
-  } catch (error) {
-    console.error('Error saving user settings:', error);
-    throw error;
-  }
+  console.log('Mock saveUserSettings called with:', settings);
+  return Promise.resolve();
 };
 
 /**
@@ -193,25 +158,15 @@ export const saveUserSettings = async (settings: UserSettings): Promise<void> =>
  * @returns User settings or default settings if not found
  */
 export const getUserSettings = async (): Promise<UserSettings> => {
-  try {
-    const settings = await getData<UserSettings>(STORAGE_KEYS.USER_SETTINGS);
-    return settings || DEFAULT_SETTINGS;
-  } catch (error) {
-    console.error('Error retrieving user settings:', error);
-    return DEFAULT_SETTINGS;
-  }
+  return Promise.resolve(DEFAULT_SETTINGS);
 };
 
 /**
  * Clear all stored field cards
  */
 export const clearAllFieldCards = async (): Promise<void> => {
-  try {
-    await AsyncStorage.removeItem(STORAGE_KEYS.FIELD_CARDS);
-  } catch (error) {
-    console.error('Error clearing field cards:', error);
-    throw error;
-  }
+  console.log('Mock clearAllFieldCards called');
+  return Promise.resolve();
 };
 
 /**
@@ -223,16 +178,22 @@ export const saveDefaultLocation = async (location: {
   latitude: number;
   longitude: number;
 }): Promise<void> => {
-  try {
-    // Update settings with new default location
-    const settings = await getUserSettings();
-    const updatedSettings = {
-      ...settings,
-      defaultLocation: location,
-    };
-    await saveUserSettings(updatedSettings);
-  } catch (error) {
-    console.error('Error saving default location:', error);
-    throw error;
-  }
+  console.log('Mock saveDefaultLocation called with:', location);
+  return Promise.resolve();
+};
+
+/**
+ * Generic method to store data (mock implementation)
+ */
+export const storeData = async <T>(key: string, value: T): Promise<void> => {
+  console.log(`Mock storeData called with key ${key}`);
+  return Promise.resolve();
+};
+
+/**
+ * Generic method to retrieve data (mock implementation)
+ */
+export const getData = async <T>(key: string): Promise<T | null> => {
+  console.log(`Mock getData called with key ${key}`);
+  return Promise.resolve(null);
 };
