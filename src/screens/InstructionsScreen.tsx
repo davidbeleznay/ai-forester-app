@@ -7,15 +7,12 @@ import {
   TouchableOpacity,
   SafeAreaView
 } from 'react-native';
-import { 
-  Droplets, 
-  Camera, 
-  BookOpen, 
-  Info,
-  ChevronRight
-} from 'lucide-react-native';
+import * as LucideIcons from 'lucide-react-native';
 import { COLORS, SPACING } from '../config/constants';
 import { Path, Svg } from 'react-native-svg';
+
+// Use specific icons
+const { Droplets, Camera, BookOpen, Info, ChevronRight } = LucideIcons;
 
 // Custom icon component for tools that don't have direct icons
 const CustomIcon = ({ name, color, size }: { name: string, color: string, size: number }) => {
