@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Wifi, WifiOff } from 'lucide-react-native';
+import * as LucideIcons from 'lucide-react-native';
 import { COLORS, SPACING } from '../config/constants';
+
+// Use specific icons
+const { Wifi, WifiOff } = LucideIcons;
 
 /**
  * Component that displays the current network connectivity status.
