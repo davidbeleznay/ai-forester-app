@@ -1,249 +1,111 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView, 
-  FlatList,
-  SafeAreaView
-} from 'react-native';
+import React from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, SPACING, FIELD_TOOLS, DEFAULT_SETTINGS } from '../config/constants';
-import { getFieldCards, FieldCard } from '../utils/storage';
-import ConnectivityStatus from '../components/ConnectivityStatus';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { Droplets, Wind, Thermometer } from 'lucide-react-native';
 import CustomIcon from '../components/CustomIcon';
+import { FIELD_TOOLS, RECENT_FIELD_CARDS } from '../constants/fieldTools';
 
-const HomeScreen = () => {
-  const navigation = useNavigation();
-  const [recentCards, setRecentCards] = useState<FieldCard[]>([]);
-  const [weather, setWeather] = useState({
-    temperature: 14,
-    windSpeed: 12,
-    location: DEFAULT_SETTINGS.defaultLocation.name
-  });
-  
-  // Load recent field cards on mount
-  useEffect(() => {
-    loadRecentCards();
-    
-    // Set up a listener for when the screen is focused
-    const unsubscribe = navigation.addListener('focus', () => {
-      loadRecentCards();
-    });
-    
-    return unsubscribe;
-  }, [navigation]);
-  
-  const loadRecentCards = async () => {
-    const cards = await getFieldCards();
-    // Sort by createdAt timestamp in descending order (most recent first)
-    const sortedCards = cards.sort((a, b) => b.createdAt - a.createdAt);
-    // Take just the first few cards
-    setRecentCards(sortedCards.slice(0, 5));
-  };
-  
-  const handleToolPress = (toolId: string) => {
-    switch (toolId) {
-      case 'culvert-sizing':
-        // @ts-ignore - navigation typing will be fixed when we set up proper navigation types
-        navigation.navigate('CulvertInput');
-        break;
-      default:
-        // For now, other tools are not implemented
-        alert(`The ${toolId} tool is coming soon!`);
-        break;
-    }
-  };
-  
-  const formatDate = (timestamp: number) => {
-    const now = new Date();
-    const date = new Date(timestamp);
-    
-    if (now.toDateString() === date.toDateString()) {
-      return 'Today';
-    } else if (new Date(now.setDate(now.getDate() - 1)).toDateString() === date.toDateString()) {
-      return 'Yesterday';
-    } else {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-  };
-  
-  const renderRecentCard = ({ item }: { item: FieldCard }) => {
-    let iconName;
-    let iconColor;
-    let iconBgColor;
-    
-    switch (item.type) {
-      case 'culvert-sizing':
-        iconName = 'droplets';
-        iconColor = COLORS.danger;
-        iconBgColor = COLORS.danger + '20'; // 20% opacity
-        break;
-      case 'tree-health':
-        iconName = 'tree';
-        iconColor = COLORS.success;
-        iconBgColor = COLORS.success + '20';
-        break;
-      case 'wolman-pebble':
-        iconName = 'camera';
-        iconColor = COLORS.secondary;
-        iconBgColor = COLORS.secondary + '20';
-        break;
-      default:
-        iconName = 'circle';
-        iconColor = COLORS.gray[500];
-        iconBgColor = COLORS.gray[100];
-    }
-    
-    return (
-      <TouchableOpacity 
-        style={styles.recentCard}
-        onPress={() => console.log('View card:', item.id)}
-      >
-        <View style={[styles.cardIcon, { backgroundColor: iconBgColor }]}>
-          <CustomIcon name={iconName} color={iconColor} size={20} />
-        </View>
-        <Text style={styles.cardTitle} numberOfLines={1}>
-          {item.name}
-        </Text>
-        <Text style={styles.cardDate}>
-          {formatDate(item.createdAt)}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
-  
+type RootStackParamList = {
+  Home: undefined;
+  CulvertSizing: undefined;
+  TreeHealth: undefined;
+  PebbleCount: undefined;
+  RestorationMonitoring: undefined;
+  RoadInspection: undefined;
+  GullyAssessment: undefined;
+  FirePredictor: undefined;
+  LandslidePredictor: undefined;
+};
+
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+
+const HomeScreen: React.FC = () => {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>AI Forester Field Companion</Text>
-          <Text style={styles.headerVersion}>v1.0</Text>
+    <View style={styles.container}>
+      {/* Location Bar */}
+      <View style={styles.locationBar}>
+        <View style={styles.locationInfo}>
+          <Droplets color="#047857" size={18} />
+          <Text style={styles.locationText}>Nanaimo Watershed</Text>
         </View>
-        
-        <ScrollView style={styles.scrollView}>
-          <ConnectivityStatus />
-          
-          {/* Location Bar */}
-          <View style={styles.locationBar}>
-            <View style={styles.locationInfo}>
-              <CustomIcon name="droplets" color={COLORS.primary} size={18} />
-              <Text style={styles.locationText}>{weather.location}</Text>
-            </View>
-            <View style={styles.weatherInfo}>
-              <View style={styles.weatherItem}>
-                <CustomIcon name="wind" color={COLORS.primary} size={16} />
-                <Text style={styles.weatherText}>{weather.windSpeed} km/h</Text>
-              </View>
-              <View style={styles.weatherItem}>
-                <CustomIcon name="thermometer" color={COLORS.primary} size={16} />
-                <Text style={styles.weatherText}>{weather.temperature}°C</Text>
-              </View>
-            </View>
+        <View style={styles.weatherInfo}>
+          <View style={styles.weatherItem}>
+            <Wind color="#047857" size={16} />
+            <Text style={styles.weatherText}>12 km/h</Text>
           </View>
-          
-          {/* Recent Field Cards */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Recent Field Cards</Text>
-              <TouchableOpacity>
-                <Text style={styles.sectionAction}>View All</Text>
-              </TouchableOpacity>
-            </View>
-            
-            {recentCards.length > 0 ? (
-              <FlatList
-                data={recentCards}
-                renderItem={renderRecentCard}
-                keyExtractor={item => item.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.recentCardsList}
-              />
-            ) : (
-              <View style={styles.emptyStateContainer}>
-                <Text style={styles.emptyStateText}>
-                  No field cards yet. Create one using the tools below.
-                </Text>
+          <View style={styles.weatherItem}>
+            <Thermometer color="#047857" size={16} />
+            <Text style={styles.weatherText}>14°C</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Recent Field Cards */}
+      <View style={styles.sectionContainer}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Recent Field Cards</Text>
+          <TouchableOpacity>
+            <Text style={styles.viewAllText}>View All</Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView 
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.cardsContainer}
+        >
+          {RECENT_FIELD_CARDS.map((card) => (
+            <TouchableOpacity key={card.id} style={styles.card}>
+              <View style={[styles.iconContainer, {backgroundColor: '#f0fdf4'}]}>
+                <CustomIcon name={card.icon} size={20} color="#059669" />
               </View>
-            )}
-          </View>
-          
-          {/* Field Tools */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Field Tools</Text>
-            
-            <View style={styles.toolsGrid}>
-              {FIELD_TOOLS.map(tool => (
-                <TouchableOpacity
-                  key={tool.id}
-                  style={styles.toolCard}
-                  onPress={() => handleToolPress(tool.id)}
-                >
-                  <View 
-                    style={[
-                      styles.toolIcon, 
-                      { backgroundColor: tool.backgroundColor }
-                    ]}
-                  >
-                    <CustomIcon name={tool.icon} color={tool.iconColor} size={18} />
-                  </View>
-                  <Text style={styles.toolTitle} numberOfLines={1}>
-                    {tool.name}
-                  </Text>
-                  <Text style={styles.toolDescription} numberOfLines={1}>
-                    {tool.description}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+              <Text style={styles.cardTitle}>{card.name}</Text>
+              <Text style={styles.cardDate}>{card.date}</Text>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
       </View>
-    </SafeAreaView>
+
+      {/* Field Tools */}
+      <View style={styles.toolsContainer}>
+        <Text style={styles.sectionTitle}>Field Tools</Text>
+        <View style={styles.toolsGrid}>
+          {FIELD_TOOLS.map((tool) => (
+            <TouchableOpacity 
+              key={tool.id} 
+              style={styles.toolCard}
+              onPress={() => tool.route && navigation.navigate(tool.route as keyof RootStackParamList)}
+            >
+              <View style={[styles.toolIconContainer, {backgroundColor: '#f0fdf4'}]}>
+                <CustomIcon name={tool.icon} size={18} color="#059669" />
+              </View>
+              <Text style={styles.toolTitle}>{tool.name}</Text>
+              <Text style={styles.toolDescription}>{tool.description}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: COLORS.primary,
-  },
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray[100],
-  },
-  header: {
-    backgroundColor: COLORS.primary,
-    padding: SPACING.md,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    color: COLORS.white,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  headerVersion: {
-    color: COLORS.white,
-    fontSize: 12,
-  },
-  scrollView: {
-    flex: 1,
-    padding: SPACING.md,
+    backgroundColor: '#f9fafb',
+    paddingHorizontal: 16,
   },
   locationBar: {
-    backgroundColor: COLORS.gray[50],
-    padding: SPACING.md,
+    backgroundColor: '#d1fae5',
+    marginTop: 16,
+    padding: 12,
     borderRadius: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.md,
-    shadowColor: COLORS.black,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -252,125 +114,111 @@ const styles = StyleSheet.create({
   locationInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
   },
   locationText: {
-    marginLeft: SPACING.sm,
     fontWeight: '500',
-    color: COLORS.gray[800],
+    fontSize: 16,
   },
   weatherInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 12,
   },
   weatherItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: SPACING.md,
+    gap: 4,
   },
   weatherText: {
-    marginLeft: 4,
-    fontSize: 12,
-    color: COLORS.gray[700],
+    fontSize: 14,
   },
-  section: {
-    marginBottom: SPACING.lg,
+  sectionContainer: {
+    paddingVertical: 12,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.sm,
+    marginBottom: 8,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.gray[800],
+    fontSize: 18,
+    fontWeight: '700',
   },
-  sectionAction: {
+  viewAllText: {
     fontSize: 14,
-    color: COLORS.primary,
-    fontWeight: '600',
+    color: '#047857',
+    fontWeight: '500',
   },
-  recentCardsList: {
-    paddingRight: SPACING.md,
+  cardsContainer: {
+    paddingBottom: 8,
+    gap: 12,
   },
-  recentCard: {
-    backgroundColor: COLORS.white,
-    padding: SPACING.md,
+  card: {
+    backgroundColor: 'white',
+    padding: 12,
     borderRadius: 8,
-    marginRight: SPACING.md,
     width: 150,
-    shadowColor: COLORS.black,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
-  cardIcon: {
+  iconContainer: {
     width: 40,
     height: 40,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: SPACING.sm,
+    marginBottom: 8,
   },
   cardTitle: {
+    fontWeight: '700',
     fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.gray[800],
-    marginBottom: 2,
   },
   cardDate: {
     fontSize: 12,
-    color: COLORS.gray[500],
+    color: '#6b7280',
   },
-  emptyStateContainer: {
-    backgroundColor: COLORS.white,
-    padding: SPACING.md,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 100,
-  },
-  emptyStateText: {
-    color: COLORS.gray[500],
-    textAlign: 'center',
-    fontSize: 14,
+  toolsContainer: {
+    flex: 1,
+    paddingBottom: 16,
   },
   toolsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    gap: 12,
+    marginTop: 12,
   },
   toolCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: 'white',
+    padding: 12,
     borderRadius: 8,
-    padding: SPACING.md,
     width: '48%',
-    marginBottom: SPACING.md,
-    shadowColor: COLORS.black,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
-  toolIcon: {
+  toolIconContainer: {
     width: 36,
     height: 36,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: SPACING.sm,
+    marginBottom: 8,
   },
   toolTitle: {
+    fontWeight: '700',
     fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.gray[800],
-    marginBottom: 2,
   },
   toolDescription: {
     fontSize: 12,
-    color: COLORS.gray[500],
+    color: '#6b7280',
   },
 });
 
