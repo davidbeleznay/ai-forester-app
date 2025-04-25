@@ -1,348 +1,234 @@
 import React from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  TouchableOpacity,
-  SafeAreaView
-} from 'react-native';
-import { COLORS, SPACING } from '../config/constants';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import CustomIcon from '../components/CustomIcon';
+import { TOOL_GUIDES } from '../constants/fieldTools';
 
-interface ToolGuideProps {
-  icon: string;
-  iconColor: string;
-  iconBgColor: string;
-  title: string;
-  description: string;
-  onPress: () => void;
-}
-
-const ToolGuide: React.FC<ToolGuideProps> = ({
-  icon,
-  iconColor,
-  iconBgColor,
-  title,
-  description,
-  onPress
-}) => (
-  <TouchableOpacity 
-    style={styles.toolGuideItem}
-    onPress={onPress}
-  >
-    <View style={[styles.toolGuideIcon, { backgroundColor: iconBgColor }]}>
-      <CustomIcon name={icon} color={iconColor} size={16} />
-    </View>
-    <View style={styles.toolGuideContent}>
-      <Text style={styles.toolGuideTitle}>{title}</Text>
-      <Text style={styles.toolGuideDescription}>{description}</Text>
-    </View>
-    <CustomIcon name="chevron-right" color={COLORS.gray[400]} size={16} />
-  </TouchableOpacity>
-);
-
-const InstructionsScreen = () => {
+const InstructionsScreen: React.FC = () => {
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Instructions</Text>
-          <Text style={styles.headerVersion}>v1.0</Text>
+    <ScrollView style={styles.container}>
+      {/* Tool Guides Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Tool Guides</Text>
+        
+        {TOOL_GUIDES.map((guide) => (
+          <View key={guide.id} style={styles.guideItem}>
+            <View style={styles.guideHeader}>
+              <View style={[styles.iconContainer, {backgroundColor: '#f0fdf4'}]}>
+                <CustomIcon name={guide.icon} size={16} color="#059669" />
+              </View>
+              <View>
+                <Text style={styles.guideTitle}>{guide.name}</Text>
+                <Text style={styles.guideDescription}>{guide.description}</Text>
+              </View>
+            </View>
+          </View>
+        ))}
+      </View>
+      
+      {/* General Tips Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>General Tips</Text>
+        
+        <View style={styles.tipItem}>
+          <Text style={styles.tipTitle}>Offline Usage</Text>
+          <Text style={styles.tipDescription}>
+            All tools function without internet connection. Sync when connection is available.
+          </Text>
         </View>
         
-        <ScrollView style={styles.scrollView}>
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Tool Guides</Text>
-            
-            <View style={styles.toolGuideContainer}>
-              <ToolGuide
-                icon="droplets"
-                iconColor={COLORS.danger}
-                iconBgColor={COLORS.danger + '20'}
-                title="Culvert Sizing"
-                description="How to properly size culverts for forestry roads"
-                onPress={() => console.log('Culvert guide')}
-              />
-              
-              <ToolGuide
-                icon="tree"
-                iconColor={COLORS.success}
-                iconBgColor={COLORS.success + '20'}
-                title="Tree Health"
-                description="Using vision analysis to assess tree health conditions"
-                onPress={() => console.log('Tree health guide')}
-              />
-              
-              <ToolGuide
-                icon="pebble"
-                iconColor={COLORS.secondary}
-                iconBgColor={COLORS.secondary + '20'}
-                title="Wolman Pebble Count"
-                description="Automated streambed material assessment"
-                onPress={() => console.log('Wolman guide')}
-              />
-              
-              <ToolGuide
-                icon="road"
-                iconColor={COLORS.info}
-                iconBgColor={COLORS.info + '20'}
-                title="Road Inspection"
-                description="AI-powered risk analysis for forestry roads"
-                onPress={() => console.log('Road inspection guide')}
-              />
-            </View>
-          </View>
-          
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>General Tips</Text>
-            
-            <View style={styles.card}>
-              <View style={styles.tipItem}>
-                <View style={styles.tipHeader}>
-                  <CustomIcon name="info" color={COLORS.primary} size={18} />
-                  <Text style={styles.tipTitle}>Offline Usage</Text>
-                </View>
-                <Text style={styles.tipContent}>
-                  All tools function without internet connection. Sync when connection is available.
-                </Text>
-              </View>
-              
-              <View style={styles.divider} />
-              
-              <View style={styles.tipItem}>
-                <View style={styles.tipHeader}>
-                  <CustomIcon name="info" color={COLORS.primary} size={18} />
-                  <Text style={styles.tipTitle}>Data Backup</Text>
-                </View>
-                <Text style={styles.tipContent}>
-                  Field cards are automatically backed up when you connect to the internet.
-                </Text>
-              </View>
-              
-              <View style={styles.divider} />
-              
-              <View style={styles.tipItem}>
-                <View style={styles.tipHeader}>
-                  <CustomIcon name="info" color={COLORS.primary} size={18} />
-                  <Text style={styles.tipTitle}>Battery Optimization</Text>
-                </View>
-                <Text style={styles.tipContent}>
-                  Turn on Battery Saver mode in Settings for extended field use.
-                </Text>
-              </View>
-            </View>
-          </View>
-          
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Quick Reference</Text>
-            
-            <View style={styles.card}>
-              <View style={styles.referenceItem}>
-                <CustomIcon name="book-open" color={COLORS.primary} size={18} />
-                <View style={styles.referenceContent}>
-                  <Text style={styles.referenceTitle}>Culvert Sizing Guidelines</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.referenceLink}>View PDF</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              
-              <View style={styles.divider} />
-              
-              <View style={styles.referenceItem}>
-                <CustomIcon name="book-open" color={COLORS.primary} size={18} />
-                <View style={styles.referenceContent}>
-                  <Text style={styles.referenceTitle}>Stream Classification Reference</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.referenceLink}>View PDF</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              
-              <View style={styles.divider} />
-              
-              <View style={styles.referenceItem}>
-                <CustomIcon name="book-open" color={COLORS.primary} size={18} />
-                <View style={styles.referenceContent}>
-                  <Text style={styles.referenceTitle}>Field Assessment Checklists</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.referenceLink}>View PDF</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </View>
-          
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Help & Support</Text>
-            
-            <View style={styles.card}>
-              <TouchableOpacity style={styles.supportItem}>
-                <Text style={styles.supportTitle}>Contact Support</Text>
-                <CustomIcon name="chevron-right" color={COLORS.gray[400]} size={16} />
-              </TouchableOpacity>
-              
-              <View style={styles.divider} />
-              
-              <TouchableOpacity style={styles.supportItem}>
-                <Text style={styles.supportTitle}>Report a Bug</Text>
-                <CustomIcon name="chevron-right" color={COLORS.gray[400]} size={16} />
-              </TouchableOpacity>
-              
-              <View style={styles.divider} />
-              
-              <TouchableOpacity style={styles.supportItem}>
-                <Text style={styles.supportTitle}>Frequently Asked Questions</Text>
-                <CustomIcon name="chevron-right" color={COLORS.gray[400]} size={16} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ScrollView>
+        <View style={styles.tipItem}>
+          <Text style={styles.tipTitle}>Data Backup</Text>
+          <Text style={styles.tipDescription}>
+            Field cards are automatically backed up when you connect to the internet.
+          </Text>
+        </View>
+        
+        <View style={styles.tipItem}>
+          <Text style={styles.tipTitle}>Battery Optimization</Text>
+          <Text style={styles.tipDescription}>
+            Turn on Battery Saver mode in Settings for extended field use.
+          </Text>
+        </View>
+        
+        <View style={styles.tipItem}>
+          <Text style={styles.tipTitle}>Location Services</Text>
+          <Text style={styles.tipDescription}>
+            Disable high-precision location when not needed to conserve battery.
+          </Text>
+        </View>
+        
+        <View style={styles.tipItem}>
+          <Text style={styles.tipTitle}>Camera Usage</Text>
+          <Text style={styles.tipDescription}>
+            For best results with vision analysis tools, ensure adequate lighting and steady positioning.
+          </Text>
+        </View>
       </View>
-    </SafeAreaView>
+      
+      {/* Quick Start Guide */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Quick Start Guide</Text>
+        
+        <View style={styles.quickStartItem}>
+          <View style={styles.quickStartNumber}>
+            <Text style={styles.numberText}>1</Text>
+          </View>
+          <View style={styles.quickStartContent}>
+            <Text style={styles.quickStartTitle}>Select a Field Tool</Text>
+            <Text style={styles.quickStartDescription}>
+              Choose the appropriate tool from the home screen for your field task.
+            </Text>
+          </View>
+        </View>
+        
+        <View style={styles.quickStartItem}>
+          <View style={styles.quickStartNumber}>
+            <Text style={styles.numberText}>2</Text>
+          </View>
+          <View style={styles.quickStartContent}>
+            <Text style={styles.quickStartTitle}>Enter Data or Capture Images</Text>
+            <Text style={styles.quickStartDescription}>
+              Follow the tool-specific instructions to collect field data.
+            </Text>
+          </View>
+        </View>
+        
+        <View style={styles.quickStartItem}>
+          <View style={styles.quickStartNumber}>
+            <Text style={styles.numberText}>3</Text>
+          </View>
+          <View style={styles.quickStartContent}>
+            <Text style={styles.quickStartTitle}>Review Results</Text>
+            <Text style={styles.quickStartDescription}>
+              Check the AI-generated analysis and recommendations.
+            </Text>
+          </View>
+        </View>
+        
+        <View style={styles.quickStartItem}>
+          <View style={styles.quickStartNumber}>
+            <Text style={styles.numberText}>4</Text>
+          </View>
+          <View style={styles.quickStartContent}>
+            <Text style={styles.quickStartTitle}>Save and Export</Text>
+            <Text style={styles.quickStartDescription}>
+              Save your field card and export results as needed.
+            </Text>
+          </View>
+        </View>
+      </View>
+      
+      {/* Version Info */}
+      <View style={styles.versionInfo}>
+        <Text style={styles.versionText}>AI Forester Field Companion v1.0</Text>
+        <Text style={styles.copyrightText}>© 2025 AI Forester</Text>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: COLORS.primary,
-  },
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray[100],
-  },
-  header: {
-    backgroundColor: COLORS.primary,
-    padding: SPACING.md,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    color: COLORS.white,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  headerVersion: {
-    color: COLORS.white,
-    fontSize: 12,
-  },
-  scrollView: {
-    flex: 1,
-    padding: SPACING.md,
+    backgroundColor: '#f9fafb',
+    padding: 16,
   },
   section: {
-    marginBottom: SPACING.lg,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.gray[800],
-    marginBottom: SPACING.sm,
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 12,
   },
-  toolGuideContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    overflow: 'hidden',
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+  guideItem: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+    paddingBottom: 12,
+    marginBottom: 12,
   },
-  toolGuideItem: {
+  guideHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: SPACING.md,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray[200],
   },
-  toolGuideIcon: {
+  iconContainer: {
     width: 32,
     height: 32,
-    borderRadius: 16,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: SPACING.md,
+    marginRight: 12,
   },
-  toolGuideContent: {
-    flex: 1,
-  },
-  toolGuideTitle: {
-    fontSize: 14,
+  guideTitle: {
+    fontSize: 16,
     fontWeight: '500',
-    color: COLORS.gray[800],
-    marginBottom: 2,
   },
-  toolGuideDescription: {
+  guideDescription: {
     fontSize: 12,
-    color: COLORS.gray[600],
-  },
-  card: {
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    overflow: 'hidden',
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    color: '#6b7280',
   },
   tipItem: {
-    padding: SPACING.md,
-  },
-  tipHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.xs,
+    marginBottom: 12,
   },
   tipTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '500',
-    color: COLORS.gray[800],
-    marginLeft: SPACING.sm,
+    marginBottom: 4,
   },
-  tipContent: {
-    fontSize: 13,
-    color: COLORS.gray[600],
-    paddingLeft: 26, // Align with title text
+  tipDescription: {
+    fontSize: 14,
+    color: '#4b5563',
   },
-  divider: {
-    height: 1,
-    backgroundColor: COLORS.gray[200],
-  },
-  referenceItem: {
+  quickStartItem: {
     flexDirection: 'row',
-    padding: SPACING.md,
-    alignItems: 'center',
+    marginBottom: 16,
   },
-  referenceContent: {
+  quickStartNumber: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#047857',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  numberText: {
+    color: 'white',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  quickStartContent: {
     flex: 1,
-    marginLeft: SPACING.sm,
   },
-  referenceTitle: {
-    fontSize: 14,
+  quickStartTitle: {
+    fontSize: 16,
     fontWeight: '500',
-    color: COLORS.gray[800],
+    marginBottom: 4,
   },
-  referenceLink: {
-    fontSize: 12,
-    color: COLORS.primary,
-    marginTop: 2,
+  quickStartDescription: {
+    fontSize: 14,
+    color: '#4b5563',
   },
-  supportItem: {
-    flexDirection: 'row',
-    padding: SPACING.md,
-    justifyContent: 'space-between',
+  versionInfo: {
     alignItems: 'center',
+    marginVertical: 24,
   },
-  supportTitle: {
+  versionText: {
     fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.gray[800],
+    color: '#6b7280',
+  },
+  copyrightText: {
+    fontSize: 12,
+    color: '#9ca3af',
+    marginTop: 4,
   },
 });
 
