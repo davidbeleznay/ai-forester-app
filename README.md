@@ -1,145 +1,89 @@
-# AI Forester Field Companion App
+# AI Forester Mobile App
 
-## Project Overview
+A mobile application for forestry professionals leveraging AI for field work.
 
-The AI Forester Field Companion is a mobile application designed for forestry professionals who need to perform field calculations and assessments while working in remote areas. The app is specifically optimized for field use with offline functionality, battery conservation features, and interfaces designed for outdoor visibility.
+## Features
 
-Built with React Native and Expo, this app leverages AI capabilities to enhance traditional forestry calculations and provides a suite of field tools that help professionals make data-driven decisions directly from the field.
-
-## Key Features
-
-- **Offline Functionality**: All calculations and tools work without internet connection
-- **Field Data Collection**: Capture and store field measurements efficiently
-- **Culvert Sizing Tool**: Calculate proper culvert sizes based on watershed characteristics
-- **Cross-platform**: Works on both iOS and Android devices
-- **GPS Integration**: Capture location data for field cards
-- **PDF Export**: Generate professional reports for documentation
-- **Climate Adaptation**: Optional climate change projection factors
-- **Low Battery Usage**: Optimized for extended field use
+- Tree health analysis using AI vision
+- Culvert sizing with climate factors
+- Pebble count automation
+- Restoration monitoring
+- Road inspection
+- Landslide risk assessment
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v16+)
+- Node.js (LTS version recommended)
+- npm or yarn
 - Expo CLI
-- Android Studio or Xcode (for emulation/building)
-- Git
+- iOS Simulator (Mac) or Android Emulator, or a physical device with Expo Go app
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/aiforester/field-companion.git
-cd ai-forester-app
-```
+1. Clone the repository
+   ```bash
+   git clone https://github.com/davidbeleznay/ai-forester-app.git
+   cd ai-forester-app
+   ```
 
-2. Install dependencies:
-```bash
-npm install
-```
+2. Install dependencies
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-3. Start the development server:
-```bash
-npx expo start
-```
+3. Start the development server
+   ```bash
+   npm start
+   # or
+   yarn start
+   ```
 
-4. Run on a device or emulator:
+4. Open the app in your device or emulator
+   - Scan the QR code with Expo Go (Android) or Camera app (iOS)
    - Press 'a' for Android emulator
    - Press 'i' for iOS simulator
-   - Scan the QR code with Expo Go app on your physical device
 
 ## Project Structure
 
 ```
 ai-forester-app/
-├── app/                    # Main application code
-│   ├── assets/             # Images, icons, and other static files
-│   ├── components/         # Reusable UI components
-│   ├── config/             # Configuration files and constants
-│   ├── navigation/         # Navigation configuration
-│   ├── screens/            # Application screens
-│   │   ├── CulvertTool/    # Culvert sizing tool screens
-│   │   └── ...             # Other tool screens
-│   └── utils/              # Utility functions and helpers
-├── .gitignore              # Git ignore file
-├── app.json                # Expo configuration
-├── package.json            # Project dependencies
-├── tsconfig.json           # TypeScript configuration
-└── README.md               # Project documentation
+├── App.js                # Main entry point
+├── src/                  # Source directory
+│   ├── components/       # Reusable UI components
+│   │   └── CustomIcon.js # Custom icon component with forestry icons
+│   ├── navigation/       # Navigation configurations
+│   │   └── AppNavigator.js
+│   └── screens/          # Application screens
+│       ├── HomeScreen.js
+│       └── PlaceholderScreen.js
+├── package.json          # Project dependencies
+└── README.md             # Project documentation
 ```
 
-## Culvert Sizing Tool
+## Troubleshooting
 
-The Culvert Sizing Tool helps forestry engineers properly size culverts for forest road construction. It implements multiple sizing methodologies:
+If you encounter any issues:
 
-1. **California Method**: Uses a combination of drainage area, regional coefficients, and Manning's equation to determine proper sizing
-2. **Stream Transportability Matrix**: Considers stream characteristics like width-to-depth ratio and gradient to ensure proper material transport
-3. **Climate Projection**: Optional layer that adjusts calculations based on projected future rainfall intensity
+1. Make sure all dependencies are installed correctly:
+   ```bash
+   npm install
+   ```
 
-### Key Calculations
+2. Clear the Metro bundler cache:
+   ```bash
+   npm start -- --reset-cache
+   ```
 
-- Q100 Flow Estimation based on regional curves
-- Manning's equation for hydraulic radius and flow capacity
-- Width-to-depth ratio analysis
-- Cross-sectional area calculation via the end area method
-- Inlet/outlet control determination
-- Safety factor application based on risk assessment
+3. Ensure you're running a compatible version of Node.js
 
-## Field Data Management
+## Development Roadmap
 
-The app includes a comprehensive data management system:
-
-- Local storage of field cards
-- Automatic backup when connected to the internet
-- Data export in PDF and CSV formats
-- Location tagging via GPS
-
-## Development Guidelines
-
-### Code Style
-
-- Follow TypeScript best practices
-- Use functional components with hooks
-- Implement proper error handling, especially for field conditions
-- Include comments on complex calculations and forestry-specific logic
-
-### UI/UX Guidelines
-
-- Design for outdoor visibility (high contrast, readable fonts)
-- Optimize for one-handed operation where possible
-- Implement large touch targets for field use (gloves)
-- Use visual indicators for calculations and results
-- Ensure feedback for all user actions
-
-## Building for Production
-
-### Android
-
-```bash
-eas build -p android --profile production
-```
-
-### iOS
-
-```bash
-eas build -p ios --profile production
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- Developed by AI Forester Technologies
-- Special thanks to the forestry professionals who provided domain expertise
-- Built with React Native and Expo
+- Complete implementation of Tree Health analysis
+- Culvert sizing calculator with climate factors
+- Implement offline data storage
+- Add user authentication
+- Location tracking and mapping features
