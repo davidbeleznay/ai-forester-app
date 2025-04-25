@@ -1,355 +1,299 @@
-// src/screens/SettingsScreen.tsx
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-  Switch,
-  SafeAreaView,
-} from 'react-native';
-import {
-  getUserSettings,
-  saveUserSettings,
-  clearAllFieldCards,
-} from '../utils/storage';
-import { COLORS, SPACING } from '../config/constants';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
+import CustomIcon from '../components/CustomIcon';
 
 const SettingsScreen = () => {
-  const [settings, setSettings] = useState({
-    units: 'metric',
-    temperature: 'celsius',
-    gpsPrecision: 'medium',
-    autoBackup: true,
-    defaultLocation: {
-      name: 'Nanaimo Watershed',
-      latitude: 49.1659,
-      longitude: -123.9401,
-    },
-  });
-
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const userSettings = await getUserSettings();
-        setSettings(userSettings);
-      } catch (err) {
-        console.error('Error loading settings:', err);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
-
-  const updateSettings = async (newSettings: Partial<typeof settings>) => {
-    try {
-      const merged = { ...settings, ...newSettings };
-      setSettings(merged);
-      await saveUserSettings(merged);
-    } catch (err) {
-      console.error('Error saving settings:', err);
-      Alert.alert('Error', 'Failed to save settings');
-    }
-  };
-
-  const handleClearData = () =>
-    Alert.alert(
-      'Clear All Field Cards',
-      'Are you sure you want to delete all saved field cards? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear All',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await clearAllFieldCards();
-              Alert.alert('Success', 'All field cards have been deleted');
-            } catch (err) {
-              console.error('Error clearing field cards:', err);
-              Alert.alert('Error', 'Failed to clear field cards');
-            }
-          },
-        },
-      ],
-    );
-
-  const exportAllData = () =>
-    Alert.alert(
-      'Export Data',
-      'This will export all your field cards as a CSV file.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Export',
-          onPress: () =>
-            Alert.alert('Coming Soon', 'This feature will be available later.'),
-        },
-      ],
-    );
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading settings…</Text>
-      </View>
-    );
-  }
-
+  const [useMetric, setUseMetric] = useState(true);
+  const [useCelsius, setUseCelsius] = useState(true);
+  const [autoBackup, setAutoBackup] = useState(true);
+  const [highPrecisionGPS, setHighPrecisionGPS] = useState(true);
+  const [batterySaver, setBatterySaver] = useState(false);
+  const [offlineMode, setOfflineMode] = useState(false);
+  
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        {/* ───── Header ───── */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Settings</Text>
-          <Text style={styles.headerVersion}>v1.0</Text>
+    <ScrollView style={styles.container}>
+      {/* Units Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Units</Text>
+        
+        <View style={styles.settingItem}>
+          <View>
+            <Text style={styles.settingTitle}>Measurement System</Text>
+            <Text style={styles.settingDescription}>Change units displayed throughout the app</Text>
+          </View>
+          <View style={styles.buttonGroup}>
+            <TouchableOpacity
+              style={[styles.button, useMetric ? styles.activeButton : {}]}
+              onPress={() => setUseMetric(true)}
+            >
+              <Text style={[styles.buttonText, useMetric ? styles.activeButtonText : {}]}>Metric</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, !useMetric ? styles.activeButton : {}]}
+              onPress={() => setUseMetric(false)}
+            >
+              <Text style={[styles.buttonText, !useMetric ? styles.activeButtonText : {}]}>Imperial</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-
-        <ScrollView style={styles.scrollView}>
-          {/* ───── Units Section ───── */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Units</Text>
-
-            <View style={styles.card}>
-              {/* Measurement System */}
-              <View style={styles.settingItem}>
-                <View style={styles.settingLabelContainer}>
-                  <Text style={styles.settingLabel}>Measurement System</Text>
-                  <Text style={styles.settingDescription}>
-                    Change units displayed throughout the app
-                  </Text>
-                </View>
-
-                <View style={styles.toggleContainer}>
-                  {/* Metric */}
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleButton,
-                      settings.units === 'metric'
-                        ? styles.toggleButtonActive
-                        : null,
-                    ]}
-                    onPress={() => updateSettings({ units: 'metric' })}
-                  >
-                    <Text
-                      style={[
-                        styles.toggleText,
-                        settings.units === 'metric'
-                          ? styles.toggleTextActive
-                          : null,
-                      ]}
-                    >
-                      Metric
-                    </Text>
-                  </TouchableOpacity>
-
-                  {/* Imperial */}
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleButton,
-                      settings.units === 'imperial'
-                        ? styles.toggleButtonActive
-                        : null,
-                    ]}
-                    onPress={() => updateSettings({ units: 'imperial' })}
-                  >
-                    <Text
-                      style={[
-                        styles.toggleText,
-                        settings.units === 'imperial'
-                          ? styles.toggleTextActive
-                          : null,
-                      ]}
-                    >
-                      Imperial
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={styles.divider} />
-
-              {/* Temperature */}
-              <View style={styles.settingItem}>
-                <View style={styles.settingLabelContainer}>
-                  <Text style={styles.settingLabel}>Temperature</Text>
-                  <Text style={styles.settingDescription}>
-                    Temperature display units
-                  </Text>
-                </View>
-
-                <View style={styles.toggleContainer}>
-                  {/* Celsius */}
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleButton,
-                      settings.temperature === 'celsius'
-                        ? styles.toggleButtonActive
-                        : null,
-                    ]}
-                    onPress={() => updateSettings({ temperature: 'celsius' })}
-                  >
-                    <Text
-                      style={[
-                        styles.toggleText,
-                        settings.temperature === 'celsius'
-                          ? styles.toggleTextActive
-                          : null,
-                      ]}
-                    >
-                      °C
-                    </Text>
-                  </TouchableOpacity>
-
-                  {/* Fahrenheit */}
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleButton,
-                      settings.temperature === 'fahrenheit'
-                        ? styles.toggleButtonActive
-                        : null,
-                    ]}
-                    onPress={() =>
-                      updateSettings({ temperature: 'fahrenheit' })
-                    }
-                  >
-                    <Text
-                      style={[
-                        styles.toggleText,
-                        settings.temperature === 'fahrenheit'
-                          ? styles.toggleTextActive
-                          : null,
-                      ]}
-                    >
-                      °F
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
+        
+        <View style={styles.settingItem}>
+          <View>
+            <Text style={styles.settingTitle}>Temperature</Text>
+            <Text style={styles.settingDescription}>Temperature display units</Text>
           </View>
-
-          {/* ───── Misc Section (auto-backup, clear data, export) ───── */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Data Management</Text>
-
-            <View style={styles.card}>
-              {/* Auto-backup */}
-              <View style={styles.settingItem}>
-                <View style={styles.settingLabelContainer}>
-                  <Text style={styles.settingLabel}>Auto-backup</Text>
-                  <Text style={styles.settingDescription}>
-                    Backup field cards automatically
-                  </Text>
-                </View>
-
-                <Switch
-                  value={settings.autoBackup}
-                  onValueChange={(val) => updateSettings({ autoBackup: val })}
-                />
-              </View>
-
-              <View style={styles.divider} />
-
-              {/* Clear all field cards */}
-              <TouchableOpacity onPress={handleClearData}>
-                <Text style={styles.destructiveText}>Clear all field cards</Text>
-              </TouchableOpacity>
-
-              <View style={styles.divider} />
-
-              {/* Export */}
-              <TouchableOpacity onPress={exportAllData}>
-                <Text style={styles.primaryText}>Export field cards (CSV)</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.buttonGroup}>
+            <TouchableOpacity
+              style={[styles.button, useCelsius ? styles.activeButton : {}]}
+              onPress={() => setUseCelsius(true)}
+            >
+              <Text style={[styles.buttonText, useCelsius ? styles.activeButtonText : {}]}>°C</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, !useCelsius ? styles.activeButton : {}]}
+              onPress={() => setUseCelsius(false)}
+            >
+              <Text style={[styles.buttonText, !useCelsius ? styles.activeButtonText : {}]}>°F</Text>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
+        </View>
       </View>
-    </SafeAreaView>
+      
+      {/* Location Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Location</Text>
+        
+        <View style={styles.settingItem}>
+          <View>
+            <Text style={styles.settingTitle}>Default Location</Text>
+            <Text style={styles.settingDescription}>Used when GPS is unavailable</Text>
+          </View>
+          <TouchableOpacity>
+            <Text style={styles.linkText}>Edit</Text>
+          </TouchableOpacity>
+        </View>
+        
+        <View style={styles.locationPreview}>
+          <Text style={styles.locationText}>Nanaimo Watershed, Vancouver Island</Text>
+        </View>
+        
+        <View style={styles.settingItem}>
+          <View>
+            <Text style={styles.settingTitle}>GPS Precision</Text>
+            <Text style={styles.settingDescription}>Higher precision uses more battery</Text>
+          </View>
+          <Switch
+            trackColor={{ false: '#e5e7eb', true: '#d1fae5' }}
+            thumbColor={highPrecisionGPS ? '#047857' : '#a1a1aa'}
+            ios_backgroundColor="#e5e7eb"
+            onValueChange={setHighPrecisionGPS}
+            value={highPrecisionGPS}
+          />
+        </View>
+      </View>
+      
+      {/* Data Management Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Data Management</Text>
+        
+        <View style={styles.settingItem}>
+          <View>
+            <Text style={styles.settingTitle}>Auto-Backup</Text>
+            <Text style={styles.settingDescription}>Backup field cards when online</Text>
+          </View>
+          <Switch
+            trackColor={{ false: '#e5e7eb', true: '#d1fae5' }}
+            thumbColor={autoBackup ? '#047857' : '#a1a1aa'}
+            ios_backgroundColor="#e5e7eb"
+            onValueChange={setAutoBackup}
+            value={autoBackup}
+          />
+        </View>
+        
+        <View style={styles.settingItem}>
+          <View>
+            <Text style={styles.settingTitle}>Offline Mode</Text>
+            <Text style={styles.settingDescription}>Disable all network connectivity</Text>
+          </View>
+          <Switch
+            trackColor={{ false: '#e5e7eb', true: '#d1fae5' }}
+            thumbColor={offlineMode ? '#047857' : '#a1a1aa'}
+            ios_backgroundColor="#e5e7eb"
+            onValueChange={setOfflineMode}
+            value={offlineMode}
+          />
+        </View>
+        
+        <View style={styles.settingItem}>
+          <View>
+            <Text style={styles.settingTitle}>Battery Saver</Text>
+            <Text style={styles.settingDescription}>Reduce app power consumption</Text>
+          </View>
+          <Switch
+            trackColor={{ false: '#e5e7eb', true: '#d1fae5' }}
+            thumbColor={batterySaver ? '#047857' : '#a1a1aa'}
+            ios_backgroundColor="#e5e7eb"
+            onValueChange={setBatterySaver}
+            value={batterySaver}
+          />
+        </View>
+        
+        <TouchableOpacity style={styles.actionButton}>
+          <Text style={styles.actionButtonText}>Export All Data</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.dangerButton}>
+          <Text style={styles.dangerButtonText}>Clear Saved Field Cards</Text>
+        </TouchableOpacity>
+      </View>
+      
+      {/* About Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>About</Text>
+        
+        <View style={styles.aboutItem}>
+          <Text style={styles.aboutTitle}>AI Forester Field Companion</Text>
+          <Text style={styles.aboutDescription}>Version 1.0.0 (Build 104)</Text>
+        </View>
+        
+        <View style={styles.aboutItem}>
+          <Text style={styles.aboutTitle}>Developer</Text>
+          <Text style={styles.aboutDescription}>AI Forester Technologies</Text>
+        </View>
+        
+        <View style={styles.aboutItem}>
+          <Text style={styles.aboutTitle}>Privacy Policy</Text>
+          <Text style={styles.aboutDescription}>Last updated: April 15, 2025</Text>
+        </View>
+        
+        <View style={styles.logoContainer}>
+          <CustomIcon name="tree" size={48} color="#047857" />
+          <Text style={styles.logoText}>AI Forester</Text>
+        </View>
+      </View>
+    </ScrollView>
   );
 };
 
-/* ────────────────────────────────────────
-   Styles
-   ──────────────────────────────────────── */
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
   container: {
     flex: 1,
-    padding: SPACING.lg,
+    backgroundColor: '#f9fafb',
+    padding: 16,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  section: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  /* Header */
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: SPACING.lg,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-  },
-  headerVersion: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-  },
-  /* Sections */
-  scrollView: { flex: 1 },
-  section: { marginBottom: SPACING.xl },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: SPACING.md,
-  },
-  card: {
-    backgroundColor: COLORS.card,
-    borderRadius: 12,
-    padding: SPACING.md,
-    elevation: 2,
+    marginBottom: 12,
   },
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: SPACING.sm,
+    marginBottom: 12,
   },
-  settingLabelContainer: { flexShrink: 1 },
-  settingLabel: { fontSize: 16, fontWeight: '500' },
+  settingTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
   settingDescription: {
     fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 2,
+    color: '#6b7280',
   },
-  toggleContainer: { flexDirection: 'row' },
-  toggleButton: {
+  buttonGroup: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  button: {
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 8,
-    marginLeft: SPACING.sm,
-    backgroundColor: COLORS.toggle,
+    backgroundColor: 'white',
   },
-  toggleButtonActive: { backgroundColor: COLORS.primary },
-  toggleText: { fontSize: 14, color: COLORS.textSecondary },
-  toggleTextActive: { color: COLORS.onPrimary },
-  divider: {
-    height: 1,
-    backgroundColor: COLORS.divider,
-    marginVertical: SPACING.sm,
+  buttonText: {
+    fontSize: 14,
+    color: '#374151',
   },
-  destructiveText: { color: COLORS.destructive, fontSize: 16 },
-  primaryText: { color: COLORS.primary, fontSize: 16 },
+  activeButton: {
+    backgroundColor: '#047857',
+  },
+  activeButtonText: {
+    color: 'white',
+    fontWeight: '500',
+  },
+  linkText: {
+    fontSize: 14,
+    color: '#047857',
+    fontWeight: '500',
+  },
+  locationPreview: {
+    backgroundColor: '#f3f4f6',
+    padding: 10,
+    borderRadius: 6,
+    marginBottom: 12,
+  },
+  locationText: {
+    fontSize: 14,
+    color: '#4b5563',
+  },
+  actionButton: {
+    backgroundColor: '#f3f4f6',
+    padding: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#4b5563',
+  },
+  dangerButton: {
+    backgroundColor: '#fee2e2',
+    padding: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  dangerButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#b91c1c',
+  },
+  aboutItem: {
+    marginBottom: 12,
+  },
+  aboutTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  aboutDescription: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  logoText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#047857',
+    marginTop: 8,
+  },
 });
 
 export default SettingsScreen;
