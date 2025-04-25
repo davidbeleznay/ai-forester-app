@@ -1,58 +1,113 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import * as LucideIcons from 'lucide-react-native';
-import { COLORS, SPACING } from '../config/constants';
+import { View, Text, StyleSheet, Animated } from 'react-native';
+import { WifiOff, Wifi } from 'lucide-react-native';
 
-// Use specific icons
-const { Wifi, WifiOff } = LucideIcons;
+type ConnectivityStatusProps = {
+  onConnectivityChange?: (isConnected: boolean) => void;
+};
 
 /**
- * Component that displays the current network connectivity status.
- * For now this is just a mock implementation that shows "Online" status.
+ * ConnectivityStatus component displays the current network connectivity status
+ * and provides a callback when connectivity changes
  */
-const ConnectivityStatus: React.FC = () => {
-  // In a real implementation, we would use NetInfo to get the actual connection status
+const ConnectivityStatus: React.FC<ConnectivityStatusProps> = ({ 
+  onConnectivityChange 
+}) => {
+  // Mock connectivity for testing purposes
   const [isConnected, setIsConnected] = useState(true);
+  const [animation] = useState(new Animated.Value(0));
   
-  // Mock implementation that just shows as connected
+  // Simulate occasional network changes
   useEffect(() => {
-    // This would normally subscribe to NetInfo changes
-    const mockInterval = setInterval(() => {
-      // For testing purposes you could toggle this
-      // setIsConnected(prev => !prev);
-    }, 10000);
+    const interval = setInterval(() => {
+      // 10% chance of switching connectivity state (just for demo)
+      if (Math.random() < 0.1) {
+        const newConnectedState = !isConnected;
+        setIsConnected(newConnectedState);
+        
+        if (onConnectivityChange) {
+          onConnectivityChange(newConnectedState);
+        }
+        
+        // Animate the indicator when status changes
+        Animated.sequence([
+          Animated.timing(animation, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(animation, {
+            toValue: 0,
+            duration: 300,
+            delay: 2000,
+            useNativeDriver: true,
+          })
+        ]).start();
+      }
+    }, 5000);
     
-    return () => clearInterval(mockInterval);
-  }, []);
+    return () => clearInterval(interval);
+  }, [isConnected, onConnectivityChange, animation]);
   
-  // Don't show anything when connected
-  if (isConnected) {
+  // Only show when there's no connection or during animation
+  if (isConnected && animation._value === 0) {
     return null;
   }
   
   return (
-    <View style={styles.container}>
-      <WifiOff width={16} height={16} stroke={COLORS.danger} />
-      <Text style={styles.text}>Offline Mode - Changes will sync when connection is restored</Text>
-    </View>
+    <Animated.View 
+      style={[
+        styles.container,
+        {
+          backgroundColor: isConnected ? '#10b981' : '#ef4444',
+          opacity: animation.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.8, 1]
+          }),
+          transform: [{
+            translateY: animation.interpolate({
+              inputRange: [0, 1],
+              outputRange: [-30, 0]
+            })
+          }]
+        }
+      ]}
+    >
+      {isConnected ? (
+        <View style={styles.content}>
+          <Wifi size={16} color="white" />
+          <Text style={styles.text}>Online</Text>
+        </View>
+      ) : (
+        <View style={styles.content}>
+          <WifiOff size={16} color="white" />
+          <Text style={styles.text}>Offline Mode</Text>
+        </View>
+      )}
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    zIndex: 999,
+  },
+  content: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.danger + '20', // 20% opacity
-    padding: SPACING.sm,
-    borderRadius: 8,
-    marginBottom: SPACING.md,
+    justifyContent: 'center',
   },
   text: {
-    marginLeft: SPACING.sm,
-    fontSize: 12,
-    color: COLORS.danger,
-    flex: 1,
-  },
+    color: 'white',
+    marginLeft: 8,
+    fontWeight: '500',
+  }
 });
 
 export default ConnectivityStatus;
