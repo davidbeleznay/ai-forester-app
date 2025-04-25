@@ -11,65 +11,13 @@ import {
 import { 
   Droplets, 
   Wind, 
-  Thermometer, 
-  Camera, 
-  Layers, 
-  AlertTriangle
+  Thermometer
 } from 'react-native-feather';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, FIELD_TOOLS, DEFAULT_SETTINGS } from '../config/constants';
 import { getFieldCards, FieldCard } from '../utils/storage';
 import ConnectivityStatus from '../components/ConnectivityStatus';
-
-// Custom icon component for tools that don't have direct icons
-const CustomIcon = ({ name, color, size }: { name: string, color: string, size: number }) => {
-  switch (name) {
-    case 'tree':
-      return (
-        <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
-          <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-            <Path 
-              d="M12 22V12M12 12L18 6M12 12L6 6M18 6H15.3333M18 6V8.66667M6 6H8.66667M6 6V8.66667" 
-              stroke={color} 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-          </Svg>
-        </View>
-      );
-    case 'road':
-      return (
-        <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
-          <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-            <Path 
-              d="M4 19L8 5M12 19L16 5M20 19L16 5M4 19L8 5M4 19H20M8 5H16" 
-              stroke={color} 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-          </Svg>
-        </View>
-      );
-    case 'circle':
-      return (
-        <View style={{ 
-          width: size, 
-          height: size, 
-          justifyContent: 'center', 
-          alignItems: 'center',
-          backgroundColor: color,
-          borderRadius: size/2
-        }}/>
-      );
-    default:
-      return null;
-  }
-};
-
-// Import these at the top of your file
-import { Path, Svg } from 'react-native-svg';
+import CustomIcon from '../components/CustomIcon';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -143,7 +91,7 @@ const HomeScreen = () => {
         iconBgColor = COLORS.success + '20';
         break;
       case 'wolman-pebble':
-        iconName = 'camera';
+        iconName = 'pebble';
         iconColor = COLORS.secondary;
         iconBgColor = COLORS.secondary + '20';
         break;
@@ -159,13 +107,7 @@ const HomeScreen = () => {
         onPress={() => console.log('View card:', item.id)}
       >
         <View style={[styles.cardIcon, { backgroundColor: iconBgColor }]}>
-          {iconName === 'droplet' ? (
-            <Droplets width={20} height={20} stroke={iconColor} />
-          ) : iconName === 'camera' ? (
-            <Camera width={20} height={20} stroke={iconColor} />
-          ) : (
-            <CustomIcon name={iconName} color={iconColor} size={20} />
-          )}
+          <CustomIcon name={iconName} color={iconColor} size={20} />
         </View>
         <Text style={styles.cardTitle} numberOfLines={1}>
           {item.name}
@@ -251,17 +193,7 @@ const HomeScreen = () => {
                       { backgroundColor: tool.backgroundColor }
                     ]}
                   >
-                    {tool.icon === 'droplet' ? (
-                      <Droplets width={18} height={18} stroke={tool.iconColor} />
-                    ) : tool.icon === 'camera' ? (
-                      <Camera width={18} height={18} stroke={tool.iconColor} />
-                    ) : tool.icon === 'layers' ? (
-                      <Layers width={18} height={18} stroke={tool.iconColor} />
-                    ) : tool.icon === 'alert-triangle' ? (
-                      <AlertTriangle width={18} height={18} stroke={tool.iconColor} />
-                    ) : (
-                      <CustomIcon name={tool.icon} color={tool.iconColor} size={18} />
-                    )}
+                    <CustomIcon name={tool.icon} color={tool.iconColor} size={18} />
                   </View>
                   <Text style={styles.toolTitle} numberOfLines={1}>
                     {tool.name}
