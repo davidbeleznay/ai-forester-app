@@ -8,67 +8,11 @@ import {
   FlatList,
   SafeAreaView
 } from 'react-native';
-// Import the icons directly to use as dynamic components
-import { icons } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, FIELD_TOOLS, DEFAULT_SETTINGS } from '../config/constants';
 import { getFieldCards, FieldCard } from '../utils/storage';
 import ConnectivityStatus from '../components/ConnectivityStatus';
-import { Path, Svg } from 'react-native-svg';
-
-// Custom icon component for tools that don't have direct icons
-const CustomIcon = ({ name, color, size }: { name: string, color: string, size: number }) => {
-  switch (name) {
-    case 'tree':
-      return (
-        <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
-          <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-            <Path 
-              d="M12 22V12M12 12L18 6M12 12L6 6M18 6H15.3333M18 6V8.66667M6 6H8.66667M6 6V8.66667" 
-              stroke={color} 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-          </Svg>
-        </View>
-      );
-    case 'road':
-      return (
-        <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
-          <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-            <Path 
-              d="M4 19L8 5M12 19L16 5M20 19L16 5M4 19L8 5M4 19H20M8 5H16" 
-              stroke={color} 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-          </Svg>
-        </View>
-      );
-    case 'circle':
-      return (
-        <View style={{ 
-          width: size, 
-          height: size, 
-          justifyContent: 'center', 
-          alignItems: 'center',
-          backgroundColor: color,
-          borderRadius: size/2
-        }}/>
-      );
-    default:
-      return null;
-  }
-};
-
-// Lucide icon component
-const LucideIcon = ({ name, color, size }: { name: string, color: string, size: number }) => {
-  const IconComponent = icons[name];
-  if (!IconComponent) return null;
-  return <IconComponent color={color} size={size} />;
-};
+import CustomIcon from '../components/CustomIcon';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -158,11 +102,7 @@ const HomeScreen = () => {
         onPress={() => console.log('View card:', item.id)}
       >
         <View style={[styles.cardIcon, { backgroundColor: iconBgColor }]}>
-          {iconName === 'droplets' || iconName === 'camera' ? (
-            <LucideIcon name={iconName} color={iconColor} size={20} />
-          ) : (
-            <CustomIcon name={iconName} color={iconColor} size={20} />
-          )}
+          <CustomIcon name={iconName} color={iconColor} size={20} />
         </View>
         <Text style={styles.cardTitle} numberOfLines={1}>
           {item.name}
@@ -189,16 +129,16 @@ const HomeScreen = () => {
           {/* Location Bar */}
           <View style={styles.locationBar}>
             <View style={styles.locationInfo}>
-              <LucideIcon name="droplets" color={COLORS.primary} size={18} />
+              <CustomIcon name="droplets" color={COLORS.primary} size={18} />
               <Text style={styles.locationText}>{weather.location}</Text>
             </View>
             <View style={styles.weatherInfo}>
               <View style={styles.weatherItem}>
-                <LucideIcon name="wind" color={COLORS.primary} size={16} />
+                <CustomIcon name="wind" color={COLORS.primary} size={16} />
                 <Text style={styles.weatherText}>{weather.windSpeed} km/h</Text>
               </View>
               <View style={styles.weatherItem}>
-                <LucideIcon name="thermometer" color={COLORS.primary} size={16} />
+                <CustomIcon name="thermometer" color={COLORS.primary} size={16} />
                 <Text style={styles.weatherText}>{weather.temperature}°C</Text>
               </View>
             </View>
@@ -248,17 +188,7 @@ const HomeScreen = () => {
                       { backgroundColor: tool.backgroundColor }
                     ]}
                   >
-                    {tool.icon === 'droplet' ? (
-                      <LucideIcon name="droplets" color={tool.iconColor} size={18} />
-                    ) : tool.icon === 'camera' ? (
-                      <LucideIcon name="camera" color={tool.iconColor} size={18} />
-                    ) : tool.icon === 'layers' ? (
-                      <LucideIcon name="layers" color={tool.iconColor} size={18} />
-                    ) : tool.icon === 'alert-triangle' ? (
-                      <LucideIcon name="alert-triangle" color={tool.iconColor} size={18} />
-                    ) : (
-                      <CustomIcon name={tool.icon} color={tool.iconColor} size={18} />
-                    )}
+                    <CustomIcon name={tool.icon} color={tool.iconColor} size={18} />
                   </View>
                   <Text style={styles.toolTitle} numberOfLines={1}>
                     {tool.name}
