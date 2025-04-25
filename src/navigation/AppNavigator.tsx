@@ -1,7 +1,6 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, View } from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
 import InstructionsScreen from '../screens/InstructionsScreen';
@@ -53,7 +52,7 @@ const TabNavigator = () => {
 // Main app navigator with all screens
 const AppNavigator = () => {
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <View style={styles.container}>
       <Stack.Navigator
         screenOptions={{
           headerStyle: {
@@ -137,7 +136,7 @@ const AppNavigator = () => {
           }} 
         />
       </Stack.Navigator>
-    </GestureHandlerRootView>
+    </View>
   );
 };
 
