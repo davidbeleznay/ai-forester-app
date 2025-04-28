@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icons/icon.png",
     "userInterfaceStyle": "light",
-    "sdkVersion": "52.0.0",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
@@ -26,11 +25,6 @@
     },
     "web": {
       "favicon": "./assets/icons/favicon.png"
-    },
-    "newArchEnabled": false,
-    "plugins": [
-      "react-native-gesture-handler"
-    ],
-    "entryPoint": "./index.js"
+    }
   }
 }
