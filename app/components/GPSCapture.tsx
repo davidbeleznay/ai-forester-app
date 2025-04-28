@@ -1,194 +1,149 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { MapPin, RefreshCw } from 'react-native-feather';
-import { getCurrentLocation, formatCoordinates, getDefaultLocation } from '../config/location';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  ActivityIndicator 
+} from 'react-native';
 import { COLORS, SPACING } from '../config/constants';
 
 interface GPSCaptureProps {
-  onLocationCaptured: (location: { latitude: number; longitude: number }) => void;
-  precision?: 'high' | 'medium' | 'low';
+  onLocationCaptured: (location: {latitude: number, longitude: number} | null) => void;
 }
 
-const GPSCapture: React.FC<GPSCaptureProps> = ({
-  onLocationCaptured,
-  precision = 'medium',
-}) => {
+const GPSCapture: React.FC<GPSCaptureProps> = ({ onLocationCaptured }) => {
+  const [location, setLocation] = useState<{latitude: number, longitude: number} | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [usingDefault, setUsingDefault] = useState(false);
 
-  // Get location on component mount if available
-  useEffect(() => {
-    captureLocation();
-  }, []);
-
-  const captureLocation = async () => {
+  // Simulate capturing current location
+  const captureLocation = () => {
     setLoading(true);
     setError(null);
-    setUsingDefault(false);
-
-    try {
-      const locationData = await getCurrentLocation(precision);
-      
-      if (locationData) {
-        const newLocation = {
-          latitude: locationData.latitude,
-          longitude: locationData.longitude,
+    
+    // Mock location capture with a delay to simulate real GPS capture
+    setTimeout(() => {
+      try {
+        // For demo purposes, generate a random location near Vancouver Island
+        // In a real app, this would use the Expo Location API
+        const mockLocation = {
+          latitude: 49.1659 + (Math.random() * 0.1 - 0.05),
+          longitude: -123.9401 + (Math.random() * 0.1 - 0.05)
         };
         
-        setLocation(newLocation);
-        onLocationCaptured(newLocation);
-      } else {
-        // If location is not available, use default
-        setError('Unable to get current location');
-        useDefaultLocation();
+        setLocation(mockLocation);
+        onLocationCaptured(mockLocation);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to capture location. Please try again.');
+        setLoading(false);
       }
-    } catch (err) {
-      setError('Error accessing location services');
-      useDefaultLocation();
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const useDefaultLocation = () => {
-    const defaultLoc = getDefaultLocation();
-    const location = {
-      latitude: defaultLoc.latitude,
-      longitude: defaultLoc.longitude,
-    };
-    
-    setLocation(location);
-    setUsingDefault(true);
-    onLocationCaptured(location);
+    }, 1500);
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Location</Text>
-        
-        <TouchableOpacity 
-          style={styles.refreshButton} 
-          onPress={captureLocation}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color={COLORS.primary} />
-          ) : (
-            <RefreshCw width={18} height={18} stroke={COLORS.primary} />
-          )}
-        </TouchableOpacity>
-      </View>
+    <View style={styles.card}>
+      <Text style={styles.title}>Location Data</Text>
       
-      <View style={styles.locationContainer}>
-        <View style={styles.iconContainer}>
-          <MapPin width={24} height={24} stroke={COLORS.primary} />
+      {location ? (
+        <View style={styles.locationContainer}>
+          <Text style={styles.locationText}>
+            Latitude: {location.latitude.toFixed(5)}°
+          </Text>
+          <Text style={styles.locationText}>
+            Longitude: {location.longitude.toFixed(5)}°
+          </Text>
+          <TouchableOpacity 
+            style={styles.captureButton}
+            onPress={captureLocation}
+          >
+            <Text style={styles.captureButtonText}>Update Location</Text>
+          </TouchableOpacity>
         </View>
-        
-        <View style={styles.locationInfo}>
-          {location ? (
-            <>
-              <Text style={styles.coordinates}>
-                {formatCoordinates(location.latitude, location.longitude)}
-              </Text>
-              
-              {usingDefault && (
-                <Text style={styles.defaultText}>Using default location</Text>
-              )}
-            </>
-          ) : error ? (
-            <Text style={styles.errorText}>{error}</Text>
-          ) : loading ? (
-            <Text style={styles.loadingText}>Getting location...</Text>
-          ) : (
-            <Text style={styles.defaultText}>No location captured</Text>
-          )}
+      ) : (
+        <View style={styles.captureContainer}>
+          <Text style={styles.captureText}>
+            Capture your current location for field documentation.
+          </Text>
+          
+          {error && <Text style={styles.errorText}>{error}</Text>}
+          
+          <TouchableOpacity 
+            style={styles.captureButton}
+            onPress={captureLocation}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator size="small" color={COLORS.white} />
+            ) : (
+              <Text style={styles.captureButtonText}>Capture Location</Text>
+            )}
+          </TouchableOpacity>
         </View>
-      </View>
-      
-      <TouchableOpacity 
-        style={styles.captureButton} 
-        onPress={captureLocation}
-        disabled={loading}
-      >
-        <Text style={styles.captureButtonText}>
-          {location ? 'Update Location' : 'Capture Location'}
-        </Text>
-      </TouchableOpacity>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  card: {
     backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: SPACING.md,
     marginBottom: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.gray[200],
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.sm,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.info,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   title: {
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.gray[800],
+    marginBottom: SPACING.sm,
   },
-  refreshButton: {
-    padding: SPACING.xs,
-  },
-  locationContainer: {
-    flexDirection: 'row',
+  captureContainer: {
     alignItems: 'center',
-    marginBottom: SPACING.md,
+    paddingVertical: SPACING.sm,
   },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.gray[100],
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: SPACING.sm,
-  },
-  locationInfo: {
-    flex: 1,
-  },
-  coordinates: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.gray[800],
-  },
-  defaultText: {
-    fontSize: 12,
-    color: COLORS.warning,
-    marginTop: 2,
-  },
-  errorText: {
-    fontSize: 12,
-    color: COLORS.danger,
-  },
-  loadingText: {
+  captureText: {
     fontSize: 14,
     color: COLORS.gray[600],
+    textAlign: 'center',
+    marginBottom: SPACING.sm,
+  },
+  locationContainer: {
+    padding: SPACING.sm,
+    backgroundColor: COLORS.info + '10',
+    borderRadius: 6,
+  },
+  locationText: {
+    fontSize: 15,
+    color: COLORS.gray[800],
+    marginBottom: SPACING.xs,
   },
   captureButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.info,
     borderRadius: 6,
     paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
     alignItems: 'center',
+    marginTop: SPACING.sm,
   },
   captureButtonText: {
     color: COLORS.white,
-    fontWeight: '600',
+    fontWeight: '500',
     fontSize: 14,
+  },
+  errorText: {
+    color: COLORS.danger,
+    fontSize: 12,
+    marginBottom: SPACING.sm,
+    textAlign: 'center',
   },
 });
 
