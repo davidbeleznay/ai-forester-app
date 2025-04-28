@@ -1,17 +1,17 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import HomeSettingsTabs from './components/HomeSettingsTabs';
+import MainAppNavigator from './navigation/MainAppNavigator';
 
 /**
- * Main App component with simplified structure.
- * NavigationContainer is now in the root App.js.
+ * Main App component with updated navigation structure.
+ * Now using MainAppNavigator which includes tool-specific navigators
  */
 export default function App() {
   return (
     <SafeAreaProvider>
       <StatusBar style="light" />
-      <HomeSettingsTabs />
+      <MainAppNavigator />
     </SafeAreaProvider>
   );
 }
