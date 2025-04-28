@@ -41,7 +41,7 @@ npm install
 
 3. Start the development server:
 ```bash
-npx expo start
+npx expo start --clear
 ```
 
 4. Run on a device or emulator:
@@ -53,22 +53,24 @@ npx expo start
 
 ```
 ai-forester-app/
-├── app/                    # Main application code
-│   ├── assets/             # Images, icons, and other static files
-│   ├── components/         # Reusable UI components
-│   ├── config/             # Configuration files and constants
-│   ├── navigation/         # Navigation configuration
-│   ├── screens/            # Application screens
-│   │   ├── CulvertTool/    # Culvert sizing tool screens
-│   │   └── ...             # Other tool screens
-│   └── utils/              # Utility functions and helpers
-├── .gitignore              # Git ignore file
-├── app.json                # Expo configuration
-├── babel.config.js         # Babel configuration
-├── index.js                # Entry point referencing App.tsx
-├── package.json            # Project dependencies
-├── tsconfig.json           # TypeScript configuration
-└── README.md               # Project documentation
+├── App.js                 # Root App component (entry point)
+├── index.js               # Registers the root App component
+├── app/                   # Main application code
+│   ├── App.tsx            # Main app component (without NavigationContainer)
+│   ├── assets/            # Images, icons, and other static files
+│   ├── components/        # Reusable UI components
+│   ├── config/            # Configuration files and constants
+│   ├── navigation/        # Navigation configuration
+│   ├── screens/           # Application screens
+│   │   ├── CulvertTool/   # Culvert sizing tool screens
+│   │   └── ...            # Other tool screens
+│   └── utils/             # Utility functions and helpers
+├── .gitignore             # Git ignore file
+├── app.json               # Expo configuration
+├── babel.config.js        # Babel configuration
+├── package.json           # Project dependencies
+├── tsconfig.json          # TypeScript configuration
+└── README.md              # Project documentation
 ```
 
 ## Development Guidelines
@@ -122,7 +124,18 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
-### 2025-04-28
+### 2025-04-28 (v2)
+- **Fixed application structure to resolve rendering errors**:
+  - Corrected App.js to properly reference app/App.tsx
+  - Removed duplicate NavigationContainer in app/App.tsx
+  - Fully simplified HomeScreen with static components and no ScrollView
+  - Fixed invalid component references
+  - Added more explicit TypeScript typing in all components
+  - Fixed HomeScreen lines 132-137 that were causing crashes
+  - Ensured proper import/export pattern consistency
+  - Updated index.js to reference root App.js
+
+### 2025-04-28 (v1)
 - **Fixed Application Entry Point Structure**:
   - Added index.js at the root to properly register the App component
   - Fixed App.tsx with proper SafeAreaProvider wrapping
