@@ -1,130 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { 
   View, 
   Text, 
   StyleSheet, 
   TouchableOpacity, 
   ScrollView, 
-  FlatList,
   SafeAreaView
 } from 'react-native';
-import { COLORS, SPACING, FIELD_TOOLS, DEFAULT_SETTINGS } from '../config/constants';
-import { getFieldCards, FieldCard } from '../utils/storage';
-import ConnectivityStatus from '../components/ConnectivityStatus';
-import { useNavigation } from '@react-navigation/native';
-import type { StackNavigationProp } from '@react-navigation/stack';
 
-// Define an ultra-simple icon
-const SimpleIcon = ({ color, size }: { color: string, size: number }) => (
-  <View style={{ 
-    width: size, 
-    height: size, 
-    backgroundColor: color,
-    borderRadius: size / 2 
-  }} />
-);
-
-// Very basic navigation type
-type RootStackParamList = {
-  CulvertInput: undefined;
-};
-
-type NavigationProp = StackNavigationProp<RootStackParamList>;
-
+/**
+ * Extremely simplified HomeScreen with no external dependencies
+ */
 const HomeScreen = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const [recentCards, setRecentCards] = useState<FieldCard[]>([]);
-  const [weather, setWeather] = useState({
-    temperature: 14,
-    windSpeed: 12,
-    location: DEFAULT_SETTINGS.defaultLocation.name
-  });
-  
-  // Load recent field cards on mount
-  useEffect(() => {
-    loadRecentCards();
-    
-    // Set up a listener for when the screen is focused
-    const unsubscribe = navigation.addListener('focus', () => {
-      loadRecentCards();
-    });
-    
-    return unsubscribe;
-  }, [navigation]);
-  
-  const loadRecentCards = async () => {
-    const cards = await getFieldCards();
-    // Sort by createdAt timestamp in descending order (most recent first)
-    const sortedCards = cards.sort((a, b) => b.createdAt - a.createdAt);
-    // Take just the first few cards
-    setRecentCards(sortedCards.slice(0, 5));
-  };
-  
-  const handleToolPress = (toolId: string) => {
-    switch (toolId) {
-      case 'culvert-sizing':
-        navigation.navigate('CulvertInput');
-        break;
-      default:
-        // For now, other tools are not implemented
-        alert(`The ${toolId} tool is coming soon!`);
-        break;
-    }
-  };
-  
-  const formatDate = (timestamp: number) => {
-    const now = new Date();
-    const date = new Date(timestamp);
-    
-    if (now.toDateString() === date.toDateString()) {
-      return 'Today';
-    } else if (new Date(now.setDate(now.getDate() - 1)).toDateString() === date.toDateString()) {
-      return 'Yesterday';
-    } else {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-  };
-  
-  const renderRecentCard = ({ item }: { item: FieldCard }) => {
-    let iconColor;
-    let iconBgColor;
-    
-    switch (item.type) {
-      case 'culvert-sizing':
-        iconColor = COLORS.danger;
-        iconBgColor = COLORS.danger + '20'; // 20% opacity
-        break;
-      case 'tree-health':
-        iconColor = COLORS.success;
-        iconBgColor = COLORS.success + '20';
-        break;
-      case 'wolman-pebble':
-        iconColor = COLORS.secondary;
-        iconBgColor = COLORS.secondary + '20';
-        break;
-      default:
-        iconColor = COLORS.gray[500];
-        iconBgColor = COLORS.gray[100];
-    }
-    
-    return (
-      <TouchableOpacity 
-        style={styles.recentCard}
-        onPress={() => console.log('View card:', item.id)}
-      >
-        <View style={[styles.cardIcon, { backgroundColor: iconBgColor }]}>
-          <SimpleIcon color={iconColor} size={20} />
-        </View>
-        <Text style={styles.cardTitle} numberOfLines={1}>
-          {item.name}
-        </Text>
-        <Text style={styles.cardDate}>
-          {formatDate(item.createdAt)}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
-  
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -135,81 +22,24 @@ const HomeScreen = () => {
         </View>
         
         <ScrollView style={styles.scrollView}>
-          <ConnectivityStatus />
-          
-          {/* Location Bar */}
-          <View style={styles.locationBar}>
-            <View style={styles.locationInfo}>
-              <SimpleIcon color={COLORS.primary} size={18} />
-              <Text style={styles.locationText}>{weather.location}</Text>
-            </View>
-            <View style={styles.weatherInfo}>
-              <View style={styles.weatherItem}>
-                <SimpleIcon color={COLORS.primary} size={16} />
-                <Text style={styles.weatherText}>{weather.windSpeed} km/h</Text>
-              </View>
-              <View style={styles.weatherItem}>
-                <SimpleIcon color={COLORS.primary} size={16} />
-                <Text style={styles.weatherText}>{weather.temperature}°C</Text>
-              </View>
-            </View>
+          {/* Simplified content */}
+          <View style={styles.card}>
+            <Text style={styles.title}>Welcome to AI Forester!</Text>
+            <Text style={styles.text}>
+              This is a simplified version of the app to resolve rendering issues.
+              Once this version loads successfully, we can gradually add back features.
+            </Text>
           </View>
           
-          {/* Recent Field Cards */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Recent Field Cards</Text>
-              <TouchableOpacity>
-                <Text style={styles.sectionAction}>View All</Text>
+          {/* Tool buttons */}
+          <Text style={styles.sectionTitle}>Field Tools</Text>
+          <View style={styles.toolGrid}>
+            {["Culvert Sizing", "Tree Health", "Road Assessment", "Stream Analysis"].map((tool, index) => (
+              <TouchableOpacity key={index} style={styles.toolButton}>
+                <View style={[styles.iconPlaceholder, { backgroundColor: getColor(index) }]} />
+                <Text style={styles.toolText}>{tool}</Text>
               </TouchableOpacity>
-            </View>
-            
-            {recentCards.length > 0 ? (
-              <FlatList
-                data={recentCards}
-                renderItem={renderRecentCard}
-                keyExtractor={item => item.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.recentCardsList}
-              />
-            ) : (
-              <View style={styles.emptyStateContainer}>
-                <Text style={styles.emptyStateText}>
-                  No field cards yet. Create one using the tools below.
-                </Text>
-              </View>
-            )}
-          </View>
-          
-          {/* Field Tools */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Field Tools</Text>
-            
-            <View style={styles.toolsGrid}>
-              {FIELD_TOOLS.map(tool => (
-                <TouchableOpacity
-                  key={tool.id}
-                  style={styles.toolCard}
-                  onPress={() => handleToolPress(tool.id)}
-                >
-                  <View 
-                    style={[
-                      styles.toolIcon, 
-                      { backgroundColor: tool.backgroundColor }
-                    ]}
-                  >
-                    <SimpleIcon size={18} color={tool.iconColor} />
-                  </View>
-                  <Text style={styles.toolTitle} numberOfLines={1}>
-                    {tool.name}
-                  </Text>
-                  <Text style={styles.toolDescription} numberOfLines={1}>
-                    {tool.description}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            ))}
           </View>
         </ScrollView>
       </View>
@@ -217,171 +47,98 @@ const HomeScreen = () => {
   );
 };
 
+// Simple function to get colors for the icons
+const getColor = (index: number): string => {
+  const colors = ['#E53E3E', '#38A169', '#3182CE', '#DD6B20'];
+  return colors[index % colors.length];
+};
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#2F855A', // Green primary color
   },
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray[100],
+    backgroundColor: '#F7FAFC', // Light background
   },
   header: {
-    backgroundColor: COLORS.primary,
-    padding: SPACING.md,
+    backgroundColor: '#2F855A',
+    padding: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   headerTitle: {
-    color: COLORS.white,
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
   },
   headerVersion: {
-    color: COLORS.white,
+    color: '#FFFFFF',
     fontSize: 12,
   },
   scrollView: {
     flex: 1,
-    padding: SPACING.md,
+    padding: 16,
   },
-  locationBar: {
-    backgroundColor: COLORS.gray[50],
-    padding: SPACING.md,
+  card: {
+    backgroundColor: '#FFFFFF',
     borderRadius: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.md,
-    shadowColor: COLORS.black,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
-  locationInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1A202C',
+    marginBottom: 8,
   },
-  locationText: {
-    marginLeft: SPACING.sm,
-    fontWeight: '500',
-    color: COLORS.gray[800],
-  },
-  weatherInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  weatherItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: SPACING.md,
-  },
-  weatherText: {
-    marginLeft: 4,
-    fontSize: 12,
-    color: COLORS.gray[700],
-  },
-  section: {
-    marginBottom: SPACING.lg,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.sm,
+  text: {
+    fontSize: 14,
+    color: '#4A5568',
+    lineHeight: 20,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.gray[800],
+    color: '#1A202C',
+    marginBottom: 8,
   },
-  sectionAction: {
-    fontSize: 14,
-    color: COLORS.primary,
-    fontWeight: '600',
-  },
-  recentCardsList: {
-    paddingRight: SPACING.md,
-  },
-  recentCard: {
-    backgroundColor: COLORS.white,
-    padding: SPACING.md,
-    borderRadius: 8,
-    marginRight: SPACING.md,
-    width: 150,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  cardIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: SPACING.sm,
-  },
-  cardTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.gray[800],
-    marginBottom: 2,
-  },
-  cardDate: {
-    fontSize: 12,
-    color: COLORS.gray[500],
-  },
-  emptyStateContainer: {
-    backgroundColor: COLORS.white,
-    padding: SPACING.md,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 100,
-  },
-  emptyStateText: {
-    color: COLORS.gray[500],
-    textAlign: 'center',
-    fontSize: 14,
-  },
-  toolsGrid: {
+  toolGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  toolCard: {
-    backgroundColor: COLORS.white,
+  toolButton: {
+    backgroundColor: '#FFFFFF',
     borderRadius: 8,
-    padding: SPACING.md,
+    padding: 16,
     width: '48%',
-    marginBottom: SPACING.md,
-    shadowColor: COLORS.black,
+    marginBottom: 16,
+    alignItems: 'center',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
-  toolIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: SPACING.sm,
+  iconPlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginBottom: 8,
   },
-  toolTitle: {
+  toolText: {
     fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.gray[800],
-    marginBottom: 2,
-  },
-  toolDescription: {
-    fontSize: 12,
-    color: COLORS.gray[500],
+    fontWeight: '500',
+    color: '#1A202C',
+    textAlign: 'center',
   },
 });
 
