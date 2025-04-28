@@ -147,14 +147,14 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Changelog
 
 ### 2025-04-28
-- Major refactoring of icon implementations:
-  - Replaced Lucide icon components with custom SVG implementations in HomeScreen.tsx
-  - Replaced Lucide icon components with custom SVG implementations in InstructionsScreen.tsx
-  - Fixed rendering errors by using native SVG elements directly
-  - Added getIconComponent helper function to centralize icon rendering
+- Completely refactored icon implementations to resolve rendering errors:
+  - Replaced complex SVG icons with simple colored circles for reliability
+  - Added proper type definitions for navigation
+  - Simplified App.tsx navigation structure
+  - Created placeholder CulvertTool screens (InputScreen and ResultScreen)
+  - Fixed all component rendering errors with simplified approach
+
 - Previous changes:
-  - Fixed icon imports in HomeScreen.tsx by changing Droplets to Droplet
-  - Updated icon props to use size/color instead of width/height/stroke
-  - Updated App.tsx with NavigationContainer wrapper
-  - Added implementation for ConnectivityStatus component
+  - Fixed icon imports and props across components
   - Added missing @react-native-async-storage/async-storage dependency
+  - Updated NavigationContainer implementation
