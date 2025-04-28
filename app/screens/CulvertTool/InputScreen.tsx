@@ -3,454 +3,671 @@ import {
   View, 
   Text, 
   StyleSheet, 
-  SafeAreaView,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
-  Switch,
+  TouchableOpacity, 
+  ScrollView, 
+  ActivityIndicator,
   Alert,
-  ActivityIndicator
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
-import Slider from '@react-native-community/slider'; // Change to community slider
-import { COLORS, SPACING, CULVERT_TOOL } from '../../config/constants';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { CulvertToolParamList } from '../../navigation/CulvertToolNavigator';
-import { calculateStreamGeometry, calculateCulvertSizing, CulvertSizingInput } from './culvertLogic';
+import { useNavigation } from '@react-navigation/native';
+import { COLORS, SPACING } from '../../config/constants';
+import FieldInput from '../../components/FieldInput';
+import GPSCapture from '../../components/GPSCapture';
+import ConnectivityStatus from '../../components/ConnectivityStatus';
+import { calculateStreamGeometry, calculateCulvertSizing } from './culvertLogic';
+import { calculateAverage, roundToDecimals } from '../../utils/mathHelpers';
 
-type InputScreenNavigationProp = StackNavigationProp<CulvertToolParamList, 'Input'>;
-
-type Props = {
-  navigation: InputScreenNavigationProp;
-};
-
-const InputScreen: React.FC<Props> = ({ navigation }) => {
-  // Form state with numeric values
-  const [drainageAreaValue, setDrainageAreaValue] = useState<number>(5);
-  const [streamGradientValue, setStreamGradientValue] = useState<number>(2);
-  const [drainageArea, setDrainageArea] = useState<string>('5');
-  const [streamGradient, setStreamGradient] = useState<string>('2');
-  const [region, setRegion] = useState<string>('Coastal BC');
-  const [culvertMaterial, setCulvertMaterial] = useState<string>('CSP (Corrugated Steel Pipe)');
+const InputScreen: React.FC = () => {
+  const navigation = useNavigation();
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [climateLayerExpanded, setClimateLayerExpanded] = useState(false);
+  const [transportabilityExpanded, setTransportabilityExpanded] = useState(false);
   
-  // Stream geometry measurements
-  const [topWidth1, setTopWidth1] = useState<string>('');
-  const [topWidth2, setTopWidth2] = useState<string>('');
-  const [topWidth3, setTopWidth3] = useState<string>('');
-  const [bottomWidth, setBottomWidth] = useState<string>('');
-  const [depth1, setDepth1] = useState<string>('');
-  const [depth2, setDepth2] = useState<string>('');
-  const [depth3, setDepth3] = useState<string>('');
+  // Location data
+  const [location, setLocation] = useState<{latitude: number, longitude: number} | null>(null);
+
+  // Form data
+  const [formState, setFormState] = useState({
+    streamName: '',
+    drainageArea: '',
+    streamGradient: '',
+    region: 'Coastal BC',
+    culvertMaterial: 'CSP (Corrugated Steel Pipe)',
+    topWidths: [''],
+    bottomWidth: '',
+    depths: [''],
+    projectedRainfall: '65',
+  });
   
-  // Advanced options
-  const [useClimateFactors, setUseClimateFactors] = useState<boolean>(false);
-  const [projectedRainfall, setProjectedRainfall] = useState<string>('');
-  const [useTransportability, setUseTransportability] = useState<boolean>(false);
-
-  // UI state
-  const [isCalculating, setIsCalculating] = useState<boolean>(false);
-  const [advancedOptionsVisible, setAdvancedOptionsVisible] = useState<boolean>(false);
-  const [crossSectionalArea, setCrossSectionalArea] = useState<number | null>(null);
-
-  // Update text fields when sliders change
+  // Validation state
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  
+  // Computed values
+  const [computedValues, setComputedValues] = useState({
+    averageTopWidth: 0,
+    averageDepth: 0,
+    crossSectionalArea: 0,
+    widthToDepthRatio: 0,
+  });
+  
+  // Add/remove measurement fields
+  const addTopWidth = () => {
+    if (formState.topWidths.length < 5) {
+      setFormState({
+        ...formState,
+        topWidths: [...formState.topWidths, '']
+      });
+    }
+  };
+  
+  const removeTopWidth = () => {
+    if (formState.topWidths.length > 1) {
+      const newWidths = [...formState.topWidths];
+      newWidths.pop();
+      setFormState({
+        ...formState,
+        topWidths: newWidths
+      });
+    }
+  };
+  
+  const addDepth = () => {
+    if (formState.depths.length < 5) {
+      setFormState({
+        ...formState,
+        depths: [...formState.depths, '']
+      });
+    }
+  };
+  
+  const removeDepth = () => {
+    if (formState.depths.length > 1) {
+      const newDepths = [...formState.depths];
+      newDepths.pop();
+      setFormState({
+        ...formState,
+        depths: newDepths
+      });
+    }
+  };
+  
+  // Update form values
+  const updateFormValue = (field: string, value: string) => {
+    setFormState(prevState => ({
+      ...prevState,
+      [field]: value
+    }));
+    
+    // Clear error for this field if it exists
+    if (errors[field]) {
+      setErrors(prevErrors => {
+        const newErrors = { ...prevErrors };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+  
+  // Update array form values (topWidths, depths)
+  const updateArrayValue = (field: 'topWidths' | 'depths', index: number, value: string) => {
+    setFormState(prevState => {
+      const newArray = [...prevState[field]];
+      newArray[index] = value;
+      return {
+        ...prevState,
+        [field]: newArray
+      };
+    });
+    
+    // Clear error for this field if it exists
+    const errorKey = `${field}[${index}]`;
+    if (errors[errorKey]) {
+      setErrors(prevErrors => {
+        const newErrors = { ...prevErrors };
+        delete newErrors[errorKey];
+        return newErrors;
+      });
+    }
+  };
+  
+  // Calculate cross-sectional area when measurements change
   useEffect(() => {
-    setDrainageArea(drainageAreaValue.toString());
-  }, [drainageAreaValue]);
-
-  useEffect(() => {
-    setStreamGradient(streamGradientValue.toString());
-  }, [streamGradientValue]);
-
-  // Calculate cross-sectional area when stream geometry values change
-  useEffect(() => {
-    try {
-      if (topWidth1 && bottomWidth && depth1) {
-        const topWidths = [
-          Number(topWidth1),
-          topWidth2 ? Number(topWidth2) : Number(topWidth1),
-          topWidth3 ? Number(topWidth3) : Number(topWidth1)
-        ];
-        
-        const depths = [
-          Number(depth1),
-          depth2 ? Number(depth2) : Number(depth1),
-          depth3 ? Number(depth3) : Number(depth1)
-        ];
-        
-        const streamGeometry = calculateStreamGeometry(
-          topWidths,
-          Number(bottomWidth),
-          depths
-        );
-        
-        setCrossSectionalArea(streamGeometry.crossSectionalArea);
+    calculateStreamValues();
+  }, [formState.topWidths, formState.bottomWidth, formState.depths]);
+  
+  const calculateStreamValues = () => {
+    // Convert string values to numbers and filter out empty values
+    const topWidthValues = formState.topWidths
+      .map(w => parseFloat(w))
+      .filter(w => !isNaN(w));
+    
+    const depthValues = formState.depths
+      .map(d => parseFloat(d))
+      .filter(d => !isNaN(d));
+    
+    const bottomWidthValue = parseFloat(formState.bottomWidth);
+    
+    // Only calculate if we have at least one width and one depth
+    if (topWidthValues.length > 0 && depthValues.length > 0 && !isNaN(bottomWidthValue)) {
+      const avgTopWidth = calculateAverage(topWidthValues);
+      const avgDepth = calculateAverage(depthValues);
+      
+      // Calculate cross-sectional area using trapezoidal formula
+      const area = ((avgTopWidth + bottomWidthValue) / 2) * avgDepth;
+      
+      // Calculate width-to-depth ratio
+      const widthToDepthRatio = avgTopWidth / avgDepth;
+      
+      setComputedValues({
+        averageTopWidth: roundToDecimals(avgTopWidth, 2),
+        averageDepth: roundToDecimals(avgDepth, 2),
+        crossSectionalArea: roundToDecimals(area, 2),
+        widthToDepthRatio: roundToDecimals(widthToDepthRatio, 2)
+      });
+    }
+  };
+  
+  // Validate form before submission
+  const validateForm = () => {
+    const newErrors: {[key: string]: string} = {};
+    
+    // Required fields
+    if (!formState.drainageArea) {
+      newErrors.drainageArea = 'Drainage area is required';
+    }
+    
+    if (!formState.streamGradient) {
+      newErrors.streamGradient = 'Stream gradient is required';
+    }
+    
+    if (!formState.bottomWidth) {
+      newErrors.bottomWidth = 'Bottom width is required';
+    }
+    
+    // Check top widths
+    let hasValidTopWidth = false;
+    formState.topWidths.forEach((width, index) => {
+      if (!width) {
+        newErrors[`topWidths[${index}]`] = 'Please enter a value';
+      } else {
+        hasValidTopWidth = true;
       }
-    } catch (error) {
-      console.error('Error calculating area:', error);
+    });
+    
+    if (!hasValidTopWidth) {
+      newErrors.topWidths = 'At least one top width measurement is required';
     }
-  }, [topWidth1, topWidth2, topWidth3, bottomWidth, depth1, depth2, depth3]);
-
-  // Handle text input changes and update slider for numeric values
-  const handleDrainageAreaChange = (text: string) => {
-    setDrainageArea(text);
-    const numValue = parseFloat(text);
-    if (!isNaN(numValue) && numValue >= 0 && numValue <= 100) {
-      setDrainageAreaValue(numValue);
+    
+    // Check depths
+    let hasValidDepth = false;
+    formState.depths.forEach((depth, index) => {
+      if (!depth) {
+        newErrors[`depths[${index}]`] = 'Please enter a value';
+      } else {
+        hasValidDepth = true;
+      }
+    });
+    
+    if (!hasValidDepth) {
+      newErrors.depths = 'At least one depth measurement is required';
     }
+    
+    // Climate factors validation
+    if (climateLayerExpanded && !formState.projectedRainfall) {
+      newErrors.projectedRainfall = 'Projected rainfall is required';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
-
-  const handleStreamGradientChange = (text: string) => {
-    setStreamGradient(text);
-    const numValue = parseFloat(text);
-    if (!isNaN(numValue) && numValue >= 0 && numValue <= 30) {
-      setStreamGradientValue(numValue);
-    }
-  };
-
-  // Available regions and materials
-  const regions = ['Coastal BC', 'Interior BC', 'Northern BC'];
-  const materials = Object.keys(CULVERT_TOOL.manningsCoefficients);
-
-  const validateForm = (): boolean => {
-    if (!drainageArea || isNaN(Number(drainageArea)) || Number(drainageArea) <= 0) {
-      Alert.alert('Validation Error', 'Please enter a valid drainage area.');
-      return false;
-    }
-    
-    if (!streamGradient || isNaN(Number(streamGradient)) || Number(streamGradient) <= 0) {
-      Alert.alert('Validation Error', 'Please enter a valid stream gradient.');
-      return false;
-    }
-    
-    if (!topWidth1 || isNaN(Number(topWidth1)) || Number(topWidth1) <= 0) {
-      Alert.alert('Validation Error', 'Please enter at least one valid top width measurement.');
-      return false;
-    }
-    
-    if (!bottomWidth || isNaN(Number(bottomWidth)) || Number(bottomWidth) < 0) {
-      Alert.alert('Validation Error', 'Please enter a valid bottom width measurement.');
-      return false;
-    }
-    
-    if (!depth1 || isNaN(Number(depth1)) || Number(depth1) <= 0) {
-      Alert.alert('Validation Error', 'Please enter at least one valid depth measurement.');
-      return false;
-    }
-    
-    if (useClimateFactors && (!projectedRainfall || isNaN(Number(projectedRainfall)))) {
-      Alert.alert('Validation Error', 'Please enter a valid projected rainfall value.');
-      return false;
-    }
-    
-    return true;
-  };
-
+  
+  // Handle calculate button press
   const handleCalculate = () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      Alert.alert('Validation Error', 'Please fix the errors in the form before calculating.');
+      return;
+    }
     
     setIsCalculating(true);
     
+    // Simulate a calculation delay for better user experience
     setTimeout(() => {
       try {
-        // Process stream geometry
-        const topWidths = [
-          Number(topWidth1),
-          topWidth2 ? Number(topWidth2) : Number(topWidth1),
-          topWidth3 ? Number(topWidth3) : Number(topWidth1)
-        ];
+        // Convert string values to numbers
+        const drainageArea = parseFloat(formState.drainageArea);
+        const streamGradient = parseFloat(formState.streamGradient);
+        const topWidths = formState.topWidths
+          .map(w => parseFloat(w))
+          .filter(w => !isNaN(w));
+        const bottomWidth = parseFloat(formState.bottomWidth);
+        const depths = formState.depths
+          .map(d => parseFloat(d))
+          .filter(d => !isNaN(d));
         
-        const depths = [
-          Number(depth1),
-          depth2 ? Number(depth2) : Number(depth1),
-          depth3 ? Number(depth3) : Number(depth1)
-        ];
-        
+        // Calculate stream geometry
         const streamGeometry = calculateStreamGeometry(
           topWidths,
-          Number(bottomWidth),
+          bottomWidth,
           depths
         );
         
         // Prepare input for culvert sizing calculation
-        const culvertInput: CulvertSizingInput = {
-          drainageArea: Number(drainageArea),
-          streamGradient: Number(streamGradient),
-          region,
-          culvertMaterial,
+        const culvertInput = {
+          drainageArea,
+          streamGradient,
+          region: formState.region,
+          culvertMaterial: formState.culvertMaterial,
           streamGeometry,
-          useClimateFactors,
-          projectedRainfall: useClimateFactors ? Number(projectedRainfall) : undefined,
-          useTransportability
+          useClimateFactors: climateLayerExpanded,
+          projectedRainfall: climateLayerExpanded ? parseFloat(formState.projectedRainfall) : undefined,
+          useTransportability: transportabilityExpanded
         };
         
         // Calculate culvert sizing
-        const results = calculateCulvertSizing(culvertInput);
+        const result = calculateCulvertSizing(culvertInput);
         
-        // Navigate to results screen with calculation results
-        navigation.navigate('Result', { culvertResults: results });
+        // Create field card data
+        const fieldCard = {
+          id: Date.now().toString(),
+          type: 'culvert-sizing' as const,
+          name: formState.streamName || `Culvert Sizing ${new Date().toLocaleDateString()}`,
+          date: new Date().toISOString(),
+          location: location ? {
+            latitude: location.latitude,
+            longitude: location.longitude
+          } : undefined,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          drainageArea,
+          streamGradient,
+          region: formState.region,
+          culvertMaterial: formState.culvertMaterial,
+          streamGeometry: {
+            ...streamGeometry,
+            topWidths,
+            bottomWidth,
+            depths
+          },
+          climateFactors: climateLayerExpanded ? {
+            projectedRainfall: parseFloat(formState.projectedRainfall),
+            year: 2050
+          } : undefined,
+          transportabilityUsed: transportabilityExpanded,
+          results: {
+            recommendedSize: result.recommendedSize,
+            method: result.method,
+            transportabilitySize: result.transportabilitySize,
+            safetyFactor: result.safetyFactor,
+            controllingFactor: result.controllingFactor
+          }
+        };
+        
+        // Navigate to results screen with the field card data
+        navigation.navigate('CulvertResult' as never, { fieldCard } as never);
       } catch (error) {
-        console.error('Calculation error:', error);
-        Alert.alert('Calculation Error', 'An error occurred during the calculation. Please check your inputs and try again.');
+        console.error('Error calculating culvert size:', error);
+        Alert.alert('Calculation Error', 'An error occurred while calculating the culvert size.');
       } finally {
         setIsCalculating(false);
       }
-    }, 1000); // Simulate a short delay for calculation
+    }, 1000);
   };
-
-  // Simplified rendering without Slider component
+  
+  // Handle region selection
+  const handleRegionSelect = () => {
+    Alert.alert(
+      'Select Region',
+      'Choose the region for this culvert',
+      [
+        { 
+          text: 'Coastal BC', 
+          onPress: () => updateFormValue('region', 'Coastal BC')
+        },
+        { 
+          text: 'Interior BC', 
+          onPress: () => updateFormValue('region', 'Interior BC')
+        },
+        { 
+          text: 'Northern BC', 
+          onPress: () => updateFormValue('region', 'Northern BC')
+        },
+        { text: 'Cancel', style: 'cancel' }
+      ]
+    );
+  };
+  
+  // Handle material selection
+  const handleMaterialSelect = () => {
+    Alert.alert(
+      'Select Culvert Material',
+      'Choose the material for this culvert',
+      [
+        { 
+          text: 'CSP (Corrugated Steel Pipe)', 
+          onPress: () => updateFormValue('culvertMaterial', 'CSP (Corrugated Steel Pipe)')
+        },
+        { 
+          text: 'HDPE (Plastic)', 
+          onPress: () => updateFormValue('culvertMaterial', 'HDPE (Plastic)')
+        },
+        { 
+          text: 'Concrete', 
+          onPress: () => updateFormValue('culvertMaterial', 'Concrete')
+        },
+        { text: 'Cancel', style: 'cancel' }
+      ]
+    );
+  };
+  
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+      <KeyboardAvoidingView 
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+      >
         {/* Header */}
         <View style={styles.header}>
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.backButtonText}>Back</Text>
+          </TouchableOpacity>
           <Text style={styles.headerTitle}>Culvert Sizing Tool</Text>
         </View>
         
         <ScrollView style={styles.scrollView}>
-          <View style={styles.content}>
-            <View style={styles.introCard}>
-              <Text style={styles.title}>Hydraulic Requirements Calculator</Text>
-              <Text style={styles.description}>
-                Calculate hydraulic requirements for culvert installations based on field measurements and watershed characteristics.
-              </Text>
+          <ConnectivityStatus />
+          
+          {/* Basic Parameters Section */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Basic Parameters</Text>
+            
+            <FieldInput
+              label="Stream Name (optional)"
+              value={formState.streamName}
+              onChangeText={(value) => updateFormValue('streamName', value)}
+              placeholder="Enter stream name"
+            />
+            
+            <FieldInput
+              label="Drainage Area"
+              value={formState.drainageArea}
+              onChangeText={(value) => updateFormValue('drainageArea', value)}
+              keyboardType="decimal-pad"
+              unit="hectares"
+              error={errors.drainageArea}
+            />
+            
+            <FieldInput
+              label="Stream Gradient"
+              value={formState.streamGradient}
+              onChangeText={(value) => updateFormValue('streamGradient', value)}
+              keyboardType="decimal-pad"
+              unit="%"
+              error={errors.streamGradient}
+            />
+            
+            {/* Region Selector */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Region</Text>
+              <TouchableOpacity 
+                style={styles.selector}
+                onPress={handleRegionSelect}
+              >
+                <Text style={styles.selectorText}>{formState.region}</Text>
+                <Text style={styles.selectorIcon}>▼</Text>
+              </TouchableOpacity>
             </View>
             
-            {/* Basic Parameters Section - Simplified without sliders for now */}
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>Watershed Characteristics</Text>
-              
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Watershed Area (km²)</Text>
-                <TextInput
-                  style={styles.input}
-                  keyboardType="numeric"
-                  value={drainageArea}
-                  onChangeText={handleDrainageAreaChange}
-                  placeholder="0.0"
-                />
-                <Text style={styles.sliderDescription}>
-                  Total drainage area upstream of culvert
-                </Text>
-              </View>
-              
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Channel Slope (%)</Text>
-                <TextInput
-                  style={styles.input}
-                  keyboardType="numeric"
-                  value={streamGradient}
-                  onChangeText={handleStreamGradientChange}
-                  placeholder="0.0"
-                />
-                <Text style={styles.sliderDescription}>
-                  Average slope of the channel at installation point
-                </Text>
-              </View>
-              
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Region</Text>
-                <View style={styles.radioGroup}>
-                  {regions.map((reg) => (
-                    <TouchableOpacity
-                      key={reg}
-                      style={[
-                        styles.radioButton,
-                        region === reg && styles.radioButtonSelected
-                      ]}
-                      onPress={() => setRegion(reg)}
-                    >
-                      <Text
-                        style={[
-                          styles.radioButtonText,
-                          region === reg && styles.radioButtonTextSelected
-                        ]}
-                      >
-                        {reg}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-              
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Culvert Material</Text>
-                <View style={styles.radioGroup}>
-                  {materials.map((mat) => (
-                    <TouchableOpacity
-                      key={mat}
-                      style={[
-                        styles.radioButton,
-                        culvertMaterial === mat && styles.radioButtonSelected
-                      ]}
-                      onPress={() => setCulvertMaterial(mat)}
-                    >
-                      <Text
-                        style={[
-                          styles.radioButtonText,
-                          culvertMaterial === mat && styles.radioButtonTextSelected
-                        ]}
-                      >
-                        {mat}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
+            {/* Culvert Material Selector */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Culvert Material</Text>
+              <TouchableOpacity 
+                style={styles.selector}
+                onPress={handleMaterialSelect}
+              >
+                <Text style={styles.selectorText}>{formState.culvertMaterial}</Text>
+                <Text style={styles.selectorIcon}>▼</Text>
+              </TouchableOpacity>
             </View>
+          </View>
+          
+          {/* Stream Geometry Section */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>
+              Stream Geometry (End Area Method)
+            </Text>
             
-            {/* Stream Geometry */}
-            <View style={styles.card}>
-              <Text style={styles.sectionTitle}>Stream Geometry</Text>
-              
-              <View style={styles.inputRow}>
-                <View style={styles.inputColumn}>
-                  <Text style={styles.label}>Top Width (m)</Text>
-                  <TextInput
-                    style={styles.input}
-                    keyboardType="numeric"
-                    value={topWidth1}
-                    onChangeText={setTopWidth1}
-                    placeholder="0.0"
-                  />
-                </View>
-                
-                <View style={styles.inputColumn}>
-                  <Text style={styles.label}>Width 2 (optional)</Text>
-                  <TextInput
-                    style={styles.input}
-                    keyboardType="numeric"
-                    value={topWidth2}
-                    onChangeText={setTopWidth2}
-                    placeholder="0.0"
-                  />
-                </View>
-                
-                <View style={styles.inputColumn}>
-                  <Text style={styles.label}>Width 3 (optional)</Text>
-                  <TextInput
-                    style={styles.input}
-                    keyboardType="numeric"
-                    value={topWidth3}
-                    onChangeText={setTopWidth3}
-                    placeholder="0.0"
-                  />
+            {/* Top Width Inputs */}
+            <View style={styles.inputContainer}>
+              <View style={styles.inputHeader}>
+                <Text style={styles.label}>Top Width (W1)</Text>
+                <View style={styles.inputControls}>
+                  <TouchableOpacity 
+                    style={styles.controlButton}
+                    onPress={addTopWidth}
+                  >
+                    <Text style={styles.controlButtonText}>+</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[
+                      styles.controlButton,
+                      formState.topWidths.length <= 1 && styles.controlButtonDisabled
+                    ]}
+                    onPress={removeTopWidth}
+                    disabled={formState.topWidths.length <= 1}
+                  >
+                    <Text 
+                      style={[
+                        styles.controlButtonText,
+                        formState.topWidths.length <= 1 && styles.controlButtonTextDisabled
+                      ]}
+                    >
+                      -
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
               
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Bottom Width (m)</Text>
-                <TextInput
-                  style={styles.input}
-                  keyboardType="numeric"
-                  value={bottomWidth}
-                  onChangeText={setBottomWidth}
-                  placeholder="0.0"
+              {formState.topWidths.map((width, index) => (
+                <FieldInput
+                  key={`width-${index}`}
+                  label={index === 0 ? '' : `Width ${index + 1}`}
+                  value={width}
+                  onChangeText={(value) => updateArrayValue('topWidths', index, value)}
+                  keyboardType="decimal-pad"
+                  unit="m"
+                  error={errors[`topWidths[${index}]`]}
                 />
-              </View>
+              ))}
               
-              <View style={styles.inputRow}>
-                <View style={styles.inputColumn}>
-                  <Text style={styles.label}>Depth (m)</Text>
-                  <TextInput
-                    style={styles.input}
-                    keyboardType="numeric"
-                    value={depth1}
-                    onChangeText={setDepth1}
-                    placeholder="0.0"
-                  />
-                </View>
-                
-                <View style={styles.inputColumn}>
-                  <Text style={styles.label}>Depth 2 (optional)</Text>
-                  <TextInput
-                    style={styles.input}
-                    keyboardType="numeric"
-                    value={depth2}
-                    onChangeText={setDepth2}
-                    placeholder="0.0"
-                  />
-                </View>
-                
-                <View style={styles.inputColumn}>
-                  <Text style={styles.label}>Depth 3 (optional)</Text>
-                  <TextInput
-                    style={styles.input}
-                    keyboardType="numeric"
-                    value={depth3}
-                    onChangeText={setDepth3}
-                    placeholder="0.0"
-                  />
-                </View>
-              </View>
+              {errors.topWidths && (
+                <Text style={styles.errorText}>{errors.topWidths}</Text>
+              )}
               
-              {crossSectionalArea !== null && (
-                <View style={styles.resultBox}>
-                  <Text style={styles.resultTitle}>Cross-sectional Area:</Text>
-                  <Text style={styles.resultValue}>{crossSectionalArea.toFixed(2)} m²</Text>
-                </View>
+              {computedValues.averageTopWidth > 0 && (
+                <Text style={styles.calculatedValue}>
+                  Average W1: {computedValues.averageTopWidth} m
+                </Text>
               )}
             </View>
             
-            {/* Advanced Options Toggle */}
-            <TouchableOpacity 
-              style={styles.card}
-              onPress={() => setAdvancedOptionsVisible(!advancedOptionsVisible)}
-            >
-              <View style={styles.toggleHeader}>
-                <Text style={styles.sectionTitle}>Advanced Options</Text>
-                <Text style={styles.toggleText}>{advancedOptionsVisible ? 'Hide' : 'Show'}</Text>
+            {/* Bottom Width Input */}
+            <FieldInput
+              label="Bottom Width (W2)"
+              value={formState.bottomWidth}
+              onChangeText={(value) => updateFormValue('bottomWidth', value)}
+              keyboardType="decimal-pad"
+              unit="m"
+              error={errors.bottomWidth}
+            />
+            
+            {/* Depth Inputs */}
+            <View style={styles.inputContainer}>
+              <View style={styles.inputHeader}>
+                <Text style={styles.label}>Depth (D)</Text>
+                <View style={styles.inputControls}>
+                  <TouchableOpacity 
+                    style={styles.controlButton}
+                    onPress={addDepth}
+                  >
+                    <Text style={styles.controlButtonText}>+</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[
+                      styles.controlButton,
+                      formState.depths.length <= 1 && styles.controlButtonDisabled
+                    ]}
+                    onPress={removeDepth}
+                    disabled={formState.depths.length <= 1}
+                  >
+                    <Text 
+                      style={[
+                        styles.controlButtonText,
+                        formState.depths.length <= 1 && styles.controlButtonTextDisabled
+                      ]}
+                    >
+                      -
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
+              
+              {formState.depths.map((depth, index) => (
+                <FieldInput
+                  key={`depth-${index}`}
+                  label={index === 0 ? '' : `Depth ${index + 1}`}
+                  value={depth}
+                  onChangeText={(value) => updateArrayValue('depths', index, value)}
+                  keyboardType="decimal-pad"
+                  unit="m"
+                  error={errors[`depths[${index}]`]}
+                />
+              ))}
+              
+              {errors.depths && (
+                <Text style={styles.errorText}>{errors.depths}</Text>
+              )}
+              
+              {computedValues.averageDepth > 0 && (
+                <Text style={styles.calculatedValue}>
+                  Average Depth: {computedValues.averageDepth} m
+                </Text>
+              )}
+            </View>
+            
+            {/* Cross-sectional Area */}
+            {computedValues.crossSectionalArea > 0 && (
+              <View style={styles.calculatedBox}>
+                <View style={styles.calculatedHeader}>
+                  <Text style={styles.calculatedTitle}>Cross-sectional Area:</Text>
+                  <Text style={styles.calculatedValue}>
+                    {computedValues.crossSectionalArea} m²
+                  </Text>
+                </View>
+                <Text style={styles.calculatedFormula}>
+                  (Average W1 + W2) / 2 × Average Depth
+                </Text>
+              </View>
+            )}
+          </View>
+          
+          {/* Location Capture */}
+          <GPSCapture onLocationCaptured={setLocation} />
+          
+          {/* Climate Layer Toggle */}
+          <View style={styles.card}>
+            <TouchableOpacity 
+              style={styles.toggleHeader}
+              onPress={() => setClimateLayerExpanded(!climateLayerExpanded)}
+            >
+              <View style={styles.toggleTitleContainer}>
+                <Text style={styles.toggleTitle}>Add Climate Layer</Text>
+              </View>
+              <Text 
+                style={[
+                  styles.toggleArrow,
+                  climateLayerExpanded && styles.toggleArrowExpanded
+                ]}
+              >
+                ▼
+              </Text>
             </TouchableOpacity>
             
-            {/* Advanced Options Content */}
-            {advancedOptionsVisible && (
-              <View style={styles.card}>
-                <View style={styles.switchGroup}>
-                  <Text style={styles.label}>Include Climate Change Projections</Text>
-                  <Switch
-                    value={useClimateFactors}
-                    onValueChange={setUseClimateFactors}
-                    trackColor={{ false: COLORS.gray[300], true: COLORS.primaryLight }}
-                    thumbColor={useClimateFactors ? COLORS.primary : COLORS.white}
-                  />
-                </View>
-                
-                {useClimateFactors && (
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Projected Rainfall Intensity (mm/hr)</Text>
-                    <TextInput
-                      style={styles.input}
-                      keyboardType="numeric"
-                      value={projectedRainfall}
-                      onChangeText={setProjectedRainfall}
-                      placeholder="0.0"
-                    />
-                  </View>
-                )}
-                
-                <View style={styles.switchGroup}>
-                  <Text style={styles.label}>Consider Stream Transportability</Text>
-                  <Switch
-                    value={useTransportability}
-                    onValueChange={setUseTransportability}
-                    trackColor={{ false: COLORS.gray[300], true: COLORS.primaryLight }}
-                    thumbColor={useTransportability ? COLORS.primary : COLORS.white}
-                  />
-                </View>
-                
-                {useTransportability && (
-                  <View style={styles.infoBox}>
-                    <Text style={styles.infoText}>
-                      Stream transportability factors in width-to-depth ratio and gradient 
-                      to ensure the culvert can handle debris and maintain flow during high-water events.
+            {climateLayerExpanded && (
+              <View style={styles.toggleContent}>
+                <FieldInput
+                  label="Projected Rainfall Intensity (2050)"
+                  value={formState.projectedRainfall}
+                  onChangeText={(value) => updateFormValue('projectedRainfall', value)}
+                  keyboardType="decimal-pad"
+                  unit="mm/hr"
+                  error={errors.projectedRainfall}
+                  info="Currently using current climate data"
+                />
+              </View>
+            )}
+          </View>
+          
+          {/* Transportability Matrix Toggle */}
+          <View style={styles.card}>
+            <TouchableOpacity 
+              style={styles.toggleHeader}
+              onPress={() => setTransportabilityExpanded(!transportabilityExpanded)}
+            >
+              <View style={styles.toggleTitleContainer}>
+                <Text style={styles.toggleTitle}>Use Stream Transportability Matrix</Text>
+              </View>
+              <Text 
+                style={[
+                  styles.toggleArrow,
+                  transportabilityExpanded && styles.toggleArrowExpanded
+                ]}
+              >
+                ▼
+              </Text>
+            </TouchableOpacity>
+            
+            {transportabilityExpanded && (
+              <View style={styles.toggleContent}>
+                {computedValues.widthToDepthRatio > 0 && (
+                  <View style={styles.calculatedBox}>
+                    <View style={styles.calculatedHeader}>
+                      <Text style={styles.calculatedTitle}>Width-to-Depth Ratio:</Text>
+                      <Text style={styles.calculatedValue}>
+                        {computedValues.widthToDepthRatio}
+                      </Text>
+                    </View>
+                    <Text style={styles.calculatedFormula}>
+                      Average W1 / Average Depth
                     </Text>
                   </View>
                 )}
+                
+                <View style={styles.infoBox}>
+                  <Text style={styles.infoText}>
+                    <Text style={styles.infoTextBold}>Note:</Text> The transportability matrix will be used to determine minimum culvert size. If the Q100 method yields a larger size, that will be used instead.
+                  </Text>
+                </View>
+                
+                <View style={styles.matrixBox}>
+                  <Text style={styles.matrixTitle}>Matrix Selection Criteria:</Text>
+                  <View style={styles.matrixList}>
+                    <Text style={styles.matrixItem}>• Width/Depth &lt; 3: Small culvert size</Text>
+                    <Text style={styles.matrixItem}>• Width/Depth 3-6: Medium culvert size</Text>
+                    <Text style={styles.matrixItem}>• Width/Depth &gt; 6: Large culvert size</Text>
+                  </View>
+                </View>
               </View>
             )}
           </View>
         </ScrollView>
         
-        {/* Calculate Button */}
+        {/* Footer */}
         <View style={styles.footer}>
           <TouchableOpacity 
             style={styles.calculateButton} 
@@ -458,13 +675,21 @@ const InputScreen: React.FC<Props> = ({ navigation }) => {
             disabled={isCalculating}
           >
             {isCalculating ? (
-              <ActivityIndicator color={COLORS.white} size="small" />
+              <ActivityIndicator size="small" color={COLORS.white} />
             ) : (
-              <Text style={styles.calculateButtonText}>Calculate Culvert Size</Text>
+              <Text style={styles.calculateText}>Calculate Culvert Size</Text>
             )}
           </TouchableOpacity>
         </View>
-      </View>
+        
+        {/* Calculating Overlay */}
+        {isCalculating && (
+          <View style={styles.overlay}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+            <Text style={styles.overlayText}>Calculating culvert size...</Text>
+          </View>
+        )}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -480,8 +705,16 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: COLORS.primary,
-    padding: SPACING.md,
+    flexDirection: 'row',
     alignItems: 'center',
+    padding: SPACING.md,
+  },
+  backButton: {
+    marginRight: SPACING.sm,
+  },
+  backButtonText: {
+    color: COLORS.white,
+    fontSize: 16,
   },
   headerTitle: {
     color: COLORS.white,
@@ -490,28 +723,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-  },
-  content: {
     padding: SPACING.md,
-  },
-  introCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    padding: SPACING.md,
-    marginBottom: SPACING.md,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.gray[800],
-    marginBottom: SPACING.sm,
-  },
-  description: {
-    fontSize: 14,
-    color: COLORS.gray[600],
-    lineHeight: 20,
   },
   card: {
     backgroundColor: COLORS.white,
@@ -530,130 +742,161 @@ const styles = StyleSheet.create({
     color: COLORS.gray[800],
     marginBottom: SPACING.md,
   },
-  sliderContainer: {
+  inputContainer: {
     marginBottom: SPACING.md,
   },
-  sliderRow: {
+  inputHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  slider: {
-    flex: 1,
-    height: 40,
-    marginRight: SPACING.sm,
-  },
-  sliderInput: {
-    width: 70,
-    height: 40,
-    borderWidth: 1,
-    borderColor: COLORS.gray[300],
-    borderRadius: 4,
-    textAlign: 'center',
-    fontSize: 16,
-  },
-  sliderDescription: {
-    fontSize: 12,
-    color: COLORS.gray[500],
-    marginTop: 2,
-  },
-  inputGroup: {
-    marginBottom: SPACING.md,
+    alignItems: 'center',
+    marginBottom: SPACING.xs,
   },
   label: {
     fontSize: 14,
-    color: COLORS.gray[700],
-    marginBottom: SPACING.xs,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: COLORS.gray[300],
-    borderRadius: 4,
-    padding: SPACING.sm,
-    fontSize: 16,
-    color: COLORS.gray[800],
-  },
-  radioGroup: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -SPACING.xs,
-  },
-  radioButton: {
-    borderWidth: 1,
-    borderColor: COLORS.gray[300],
-    borderRadius: 4,
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.md,
-    marginRight: SPACING.xs,
-    marginBottom: SPACING.xs,
-  },
-  radioButtonSelected: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  radioButtonText: {
-    color: COLORS.gray[700],
-    fontSize: 14,
-  },
-  radioButtonTextSelected: {
-    color: COLORS.white,
     fontWeight: '500',
+    color: COLORS.gray[700],
+    marginBottom: SPACING.xs,
   },
-  inputRow: {
+  inputControls: {
     flexDirection: 'row',
-    marginHorizontal: -SPACING.xs,
-    marginBottom: SPACING.md,
+    gap: SPACING.xs,
   },
-  inputColumn: {
-    flex: 1,
-    paddingHorizontal: SPACING.xs,
+  controlButton: {
+    backgroundColor: COLORS.gray[100],
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  switchGroup: {
+  controlButtonDisabled: {
+    backgroundColor: COLORS.gray[200],
+  },
+  controlButtonText: {
+    fontSize: 16,
+    color: COLORS.primary,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  controlButtonTextDisabled: {
+    color: COLORS.gray[400],
+  },
+  selector: {
+    height: 48,
+    borderWidth: 1,
+    borderColor: COLORS.gray[300],
+    borderRadius: 6,
+    paddingHorizontal: SPACING.md,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  selectorText: {
+    fontSize: 16,
+    color: COLORS.gray[800],
+  },
+  selectorIcon: {
+    fontSize: 12,
+    color: COLORS.gray[500],
+  },
+  errorText: {
+    color: COLORS.danger,
+    fontSize: 12,
+    marginTop: SPACING.xs,
+  },
+  calculatedValue: {
+    fontSize: 13,
+    color: COLORS.gray[600],
+    marginTop: SPACING.xs,
+    fontStyle: 'italic',
+  },
+  calculatedBox: {
+    backgroundColor: COLORS.blue[50],
+    borderRadius: 6,
+    padding: SPACING.md,
     marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.blue[200],
+  },
+  calculatedHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  calculatedTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: COLORS.blue[800],
+  },
+  calculatedFormula: {
+    fontSize: 12,
+    color: COLORS.blue[600],
+    marginTop: SPACING.xs,
   },
   toggleHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: '100%',
   },
-  toggleText: {
-    color: COLORS.primary,
-    fontWeight: '500',
-  },
-  infoBox: {
-    backgroundColor: COLORS.gray[100],
-    borderRadius: 4,
-    padding: SPACING.sm,
-    marginTop: SPACING.xs,
-  },
-  infoText: {
-    fontSize: 12,
-    color: COLORS.gray[600],
-    lineHeight: 18,
-  },
-  resultBox: {
-    backgroundColor: COLORS.blue[50],
-    borderRadius: 4,
-    padding: SPACING.sm,
-    marginTop: SPACING.sm,
-    borderWidth: 1,
-    borderColor: COLORS.blue[200],
+  toggleTitleContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  resultTitle: {
+  toggleTitle: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.blue[800],
+    color: COLORS.gray[800],
   },
-  resultValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.blue[800],
+  toggleArrow: {
+    fontSize: 12,
+    color: COLORS.gray[500],
+  },
+  toggleArrowExpanded: {
+    transform: [{ rotate: '180deg' }],
+  },
+  toggleContent: {
+    marginTop: SPACING.md,
+    paddingTop: SPACING.md,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.gray[200],
+  },
+  infoBox: {
+    backgroundColor: COLORS.warning + '15',
+    borderRadius: 6,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.warning + '30',
+  },
+  infoText: {
+    fontSize: 13,
+    color: COLORS.warning,
+  },
+  infoTextBold: {
+    fontWeight: '600',
+  },
+  matrixBox: {
+    backgroundColor: COLORS.gray[100],
+    borderRadius: 6,
+    padding: SPACING.md,
+    marginBottom: SPACING.xs,
+    borderWidth: 1,
+    borderColor: COLORS.gray[200],
+  },
+  matrixTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: COLORS.gray[800],
+    marginBottom: SPACING.xs,
+  },
+  matrixList: {
+    marginTop: SPACING.xs,
+  },
+  matrixItem: {
+    fontSize: 12,
+    color: COLORS.gray[600],
+    marginBottom: 2,
   },
   footer: {
     padding: SPACING.md,
@@ -663,14 +906,29 @@ const styles = StyleSheet.create({
   },
   calculateButton: {
     backgroundColor: COLORS.primary,
-    borderRadius: 4,
-    padding: SPACING.md,
+    borderRadius: 6,
+    height: 48,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  calculateButtonText: {
+  calculateText: {
     color: COLORS.white,
-    fontWeight: '600',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: COLORS.gray[100] + 'E6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  overlayText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: COLORS.gray[700],
+    marginTop: SPACING.md,
   },
 });
 
