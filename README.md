@@ -100,93 +100,16 @@ The Culvert Sizing Tool helps forestry professionals calculate the appropriate c
    - Transportability assessment
 6. You can save the field card for future reference or export a PDF report
 
-## Project Structure
-
-```
-ai-forester-app/
-├── App.js                 # Root App component (entry point)
-├── index.js               # Registers the root App component
-├── app/                   # Main application code
-│   ├── App.tsx            # Main app component (without NavigationContainer)
-│   ├── assets/            # Images, icons, and other static files
-│   ├── components/        # Reusable UI components
-│   │   ├── ConnectivityStatus.tsx  # Network status indicator
-│   │   ├── FieldInput.tsx          # Dynamic form input component
-│   │   ├── GPSCapture.tsx          # Location capture component
-│   │   └── ResultVisual.tsx        # Visual representation component
-│   ├── config/            # Configuration files and constants
-│   │   └── constants.ts   # App-wide constants and theme values
-│   ├── navigation/        # Navigation configuration
-│   │   ├── MainAppNavigator.tsx      # Main application navigator
-│   │   └── CulvertToolNavigator.tsx  # Culvert tool navigator
-│   ├── screens/           # Application screens
-│   │   ├── CulvertTool/   # Culvert sizing tool screens
-│   │   │   ├── InputScreen.tsx       # Form inputs for culvert sizing
-│   │   │   ├── ResultScreen.tsx      # Results display screen
-│   │   │   └── HistoryScreen.tsx     # Saved field cards history
-│   │   └── ...            # Other tool screens
-│   └── utils/             # Utility functions and helpers
-│       ├── CulvertCalculator.ts      # Culvert sizing algorithms
-│       ├── pdfExporter.ts            # PDF generation utility
-│       └── storage.ts                # AsyncStorage management
-├── .gitignore             # Git ignore file
-├── app.json               # Expo configuration
-├── babel.config.js        # Babel configuration
-├── package.json           # Project dependencies
-├── tsconfig.json          # TypeScript configuration
-└── README.md              # Project documentation
-```
-
-## Development Guidelines
-
-### Code Style
-
-- Follow TypeScript best practices
-- Use functional components with hooks
-- Implement proper error handling, especially for field conditions
-- Include comments on complex calculations and forestry-specific logic
-
-### UI/UX Guidelines
-
-- Design for outdoor visibility (high contrast, readable fonts)
-- Optimize for one-handed operation where possible
-- Implement large touch targets for field use (gloves)
-- Use visual indicators for calculations and results
-- Ensure feedback for all user actions
-
-## Building for Production
-
-### Android
-
-```bash
-eas build -p android --profile production
-```
-
-### iOS
-
-```bash
-eas build -p ios --profile production
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- Developed by AI Forester Technologies
-- Special thanks to the forestry professionals who provided domain expertise
-- Built with React Native and Expo
-
 ## Changelog
+
+### 2025-04-28 (v7)
+- **Fixed bundling issues and dependency problems**:
+  - Updated app structure to use simplified base components
+  - Fixed potential TypeError from undefined COLORS references
+  - Ensured proper gesture handler setup with appropriate imports
+  - Updated app.json and package.json for better Expo compatibility
+  - Disabled new architecture temporarily to improve stability
+  - Updated README with enhanced troubleshooting guidance
 
 ### 2025-04-28 (v6)
 - **Enhanced Culvert Sizing Tool with Comprehensive Features**:
@@ -205,7 +128,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ### 2025-04-28 (v5)
 - **Fixed gesture handler and component errors**:
-  - Added gesture-handler import at the top of App.js and index.js
+  - Added gesture-handler import at the top of both App.js and index.js
   - Removed slider component to address TypeError issues
   - Implemented simpler form with standard inputs
   - Updated README with troubleshooting section
