@@ -4,7 +4,6 @@ import {
   Text, 
   StyleSheet, 
   TouchableOpacity, 
-  ScrollView, 
   SafeAreaView 
 } from 'react-native';
 
@@ -49,7 +48,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               style={styles.toolButton}
               onPress={navigateToCulvertTool}
             >
-              <View style={[styles.iconPlaceholder, { backgroundColor: COLORS.danger }]} />
+              <View style={[styles.iconPlaceholder, { backgroundColor: COLORS.error }]} />
               <Text style={styles.toolText}>Culvert Sizing</Text>
             </TouchableOpacity>
             
@@ -81,7 +80,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray[100],
+    backgroundColor: COLORS.background,
   },
   header: {
     backgroundColor: COLORS.primary,
@@ -117,18 +116,18 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.gray[800],
+    color: COLORS.text,
     marginBottom: 8,
   },
   text: {
     fontSize: 14,
-    color: COLORS.gray[600],
+    color: COLORS.textLight,
     lineHeight: 20,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.gray[800],
+    color: COLORS.text,
     marginBottom: 8,
   },
   toolGrid: {
@@ -158,7 +157,7 @@ const styles = StyleSheet.create({
   toolText: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.gray[800],
+    color: COLORS.text,
     textAlign: 'center',
   },
 });
