@@ -1,149 +1,205 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ActivityIndicator 
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import * as Location from 'expo-location';
 import { COLORS, SPACING } from '../config/constants';
 
 interface GPSCaptureProps {
-  onLocationCaptured: (location: {latitude: number, longitude: number} | null) => void;
+  onLocationCaptured: (location: { latitude: number; longitude: number; accuracy: number }) => void;
+  initialLocation?: { latitude: number; longitude: number; accuracy: number } | null;
 }
 
-const GPSCapture: React.FC<GPSCaptureProps> = ({ onLocationCaptured }) => {
-  const [location, setLocation] = useState<{latitude: number, longitude: number} | null>(null);
+const GPSCapture: React.FC<GPSCaptureProps> = ({ onLocationCaptured, initialLocation }) => {
+  const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [permissionStatus, setPermissionStatus] = useState<Location.PermissionStatus | null>(null);
 
-  // Simulate capturing current location
-  const captureLocation = () => {
-    setLoading(true);
-    setError(null);
-    
-    // Mock location capture with a delay to simulate real GPS capture
-    setTimeout(() => {
+  // If initialLocation is provided, set it as the current location
+  useEffect(() => {
+    if (initialLocation) {
+      setLocation({
+        coords: {
+          latitude: initialLocation.latitude,
+          longitude: initialLocation.longitude,
+          accuracy: initialLocation.accuracy,
+          altitude: null,
+          altitudeAccuracy: null,
+          heading: null,
+          speed: null,
+        },
+        timestamp: Date.now(),
+      });
+    }
+  }, [initialLocation]);
+
+  // Request location permissions when component mounts
+  useEffect(() => {
+    (async () => {
       try {
-        // For demo purposes, generate a random location near Vancouver Island
-        // In a real app, this would use the Expo Location API
-        const mockLocation = {
-          latitude: 49.1659 + (Math.random() * 0.1 - 0.05),
-          longitude: -123.9401 + (Math.random() * 0.1 - 0.05)
-        };
-        
-        setLocation(mockLocation);
-        onLocationCaptured(mockLocation);
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to capture location. Please try again.');
-        setLoading(false);
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        setPermissionStatus(status);
+        if (status !== 'granted') {
+          setErrorMsg('Permission to access location was denied');
+          return;
+        }
+      } catch (error) {
+        console.error('Error requesting location permissions:', error);
+        setErrorMsg('Failed to request location permissions');
       }
-    }, 1500);
+    })();
+  }, []);
+
+  const captureLocation = async () => {
+    if (permissionStatus !== 'granted') {
+      setErrorMsg('Location permission not granted');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg(null);
+
+    try {
+      // Get current location with high accuracy
+      const currentLocation = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Highest,
+      });
+      
+      setLocation(currentLocation);
+      
+      // Pass the location up to the parent component
+      onLocationCaptured({
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
+        accuracy: currentLocation.coords.accuracy || 0,
+      });
+    } catch (error) {
+      console.error('Error getting location:', error);
+      setErrorMsg('Failed to get location. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>Location Data</Text>
-      
-      {location ? (
-        <View style={styles.locationContainer}>
-          <Text style={styles.locationText}>
-            Latitude: {location.latitude.toFixed(5)}°
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Location Data</Text>
+        <TouchableOpacity 
+          style={styles.captureButton} 
+          onPress={captureLocation}
+          disabled={loading || permissionStatus !== 'granted'}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color={COLORS.white} />
+          ) : (
+            <Text style={styles.buttonText}>Capture GPS</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      {errorMsg ? (
+        <Text style={styles.errorText}>{errorMsg}</Text>
+      ) : null}
+
+      <View style={styles.locationInfo}>
+        {location ? (
+          <>
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Latitude:</Text>
+              <Text style={styles.value}>{location.coords.latitude.toFixed(6)}°</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Longitude:</Text>
+              <Text style={styles.value}>{location.coords.longitude.toFixed(6)}°</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Accuracy:</Text>
+              <Text style={styles.value}>{location.coords.accuracy?.toFixed(1) || 'N/A'} m</Text>
+            </View>
+            <Text style={styles.timestamp}>
+              Recorded: {new Date(location.timestamp).toLocaleString()}
+            </Text>
+          </>
+        ) : (
+          <Text style={styles.placeholderText}>
+            {permissionStatus !== 'granted'
+              ? 'Location permission not granted'
+              : 'Tap "Capture GPS" to record your current location'}
           </Text>
-          <Text style={styles.locationText}>
-            Longitude: {location.longitude.toFixed(5)}°
-          </Text>
-          <TouchableOpacity 
-            style={styles.captureButton}
-            onPress={captureLocation}
-          >
-            <Text style={styles.captureButtonText}>Update Location</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View style={styles.captureContainer}>
-          <Text style={styles.captureText}>
-            Capture your current location for field documentation.
-          </Text>
-          
-          {error && <Text style={styles.errorText}>{error}</Text>}
-          
-          <TouchableOpacity 
-            style={styles.captureButton}
-            onPress={captureLocation}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator size="small" color={COLORS.white} />
-            ) : (
-              <Text style={styles.captureButtonText}>Capture Location</Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      )}
+        )}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
+  container: {
     backgroundColor: COLORS.white,
     borderRadius: 8,
-    padding: SPACING.md,
-    marginBottom: SPACING.md,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.info,
-    shadowColor: COLORS.black,
+    padding: SPACING.medium,
+    marginVertical: SPACING.small,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
-  title: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.gray[800],
-    marginBottom: SPACING.sm,
-  },
-  captureContainer: {
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: SPACING.sm,
+    marginBottom: SPACING.small,
   },
-  captureText: {
-    fontSize: 14,
-    color: COLORS.gray[600],
-    textAlign: 'center',
-    marginBottom: SPACING.sm,
-  },
-  locationContainer: {
-    padding: SPACING.sm,
-    backgroundColor: COLORS.info + '10',
-    borderRadius: 6,
-  },
-  locationText: {
-    fontSize: 15,
-    color: COLORS.gray[800],
-    marginBottom: SPACING.xs,
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.text,
   },
   captureButton: {
-    backgroundColor: COLORS.info,
+    backgroundColor: COLORS.primary,
+    paddingVertical: SPACING.tiny,
+    paddingHorizontal: SPACING.small,
     borderRadius: 6,
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.md,
-    alignItems: 'center',
-    marginTop: SPACING.sm,
   },
-  captureButtonText: {
+  buttonText: {
     color: COLORS.white,
     fontWeight: '500',
     fontSize: 14,
   },
   errorText: {
-    color: COLORS.danger,
+    color: COLORS.error,
+    marginBottom: SPACING.small,
+  },
+  locationInfo: {
+    backgroundColor: COLORS.lightBackground,
+    padding: SPACING.small,
+    borderRadius: 6,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.tiny,
+  },
+  label: {
+    fontSize: 16,
+    color: COLORS.textLight,
+  },
+  value: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: COLORS.text,
+  },
+  timestamp: {
     fontSize: 12,
-    marginBottom: SPACING.sm,
+    color: COLORS.textLight,
+    marginTop: SPACING.small,
+    fontStyle: 'italic',
+  },
+  placeholderText: {
+    color: COLORS.textLight,
+    fontStyle: 'italic',
     textAlign: 'center',
+    paddingVertical: SPACING.small,
   },
 });
 
