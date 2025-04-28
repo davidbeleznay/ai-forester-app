@@ -9,9 +9,9 @@ import {
   TextInput,
   Switch,
   Alert,
-  Slider,
   ActivityIndicator
 } from 'react-native';
+import Slider from '@react-native-community/slider'; // Change to community slider
 import { COLORS, SPACING, CULVERT_TOOL } from '../../config/constants';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { CulvertToolParamList } from '../../navigation/CulvertToolNavigator';
@@ -196,6 +196,7 @@ const InputScreen: React.FC<Props> = ({ navigation }) => {
     }, 1000); // Simulate a short delay for calculation
   };
 
+  // Simplified rendering without Slider component
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -213,57 +214,33 @@ const InputScreen: React.FC<Props> = ({ navigation }) => {
               </Text>
             </View>
             
-            {/* Basic Parameters Section with Sliders */}
+            {/* Basic Parameters Section - Simplified without sliders for now */}
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>Watershed Characteristics</Text>
               
-              <View style={styles.sliderContainer}>
+              <View style={styles.inputGroup}>
                 <Text style={styles.label}>Watershed Area (km²)</Text>
-                <View style={styles.sliderRow}>
-                  <Slider
-                    style={styles.slider}
-                    minimumValue={0}
-                    maximumValue={100}
-                    step={0.1}
-                    value={drainageAreaValue}
-                    onValueChange={setDrainageAreaValue}
-                    minimumTrackTintColor={COLORS.primary}
-                    maximumTrackTintColor={COLORS.gray[300]}
-                    thumbTintColor={COLORS.primary}
-                  />
-                  <TextInput
-                    style={styles.sliderInput}
-                    keyboardType="numeric"
-                    value={drainageArea}
-                    onChangeText={handleDrainageAreaChange}
-                  />
-                </View>
+                <TextInput
+                  style={styles.input}
+                  keyboardType="numeric"
+                  value={drainageArea}
+                  onChangeText={handleDrainageAreaChange}
+                  placeholder="0.0"
+                />
                 <Text style={styles.sliderDescription}>
                   Total drainage area upstream of culvert
                 </Text>
               </View>
               
-              <View style={styles.sliderContainer}>
+              <View style={styles.inputGroup}>
                 <Text style={styles.label}>Channel Slope (%)</Text>
-                <View style={styles.sliderRow}>
-                  <Slider
-                    style={styles.slider}
-                    minimumValue={0}
-                    maximumValue={30}
-                    step={0.1}
-                    value={streamGradientValue}
-                    onValueChange={setStreamGradientValue}
-                    minimumTrackTintColor={COLORS.primary}
-                    maximumTrackTintColor={COLORS.gray[300]}
-                    thumbTintColor={COLORS.primary}
-                  />
-                  <TextInput
-                    style={styles.sliderInput}
-                    keyboardType="numeric"
-                    value={streamGradient}
-                    onChangeText={handleStreamGradientChange}
-                  />
-                </View>
+                <TextInput
+                  style={styles.input}
+                  keyboardType="numeric"
+                  value={streamGradient}
+                  onChangeText={handleStreamGradientChange}
+                  placeholder="0.0"
+                />
                 <Text style={styles.sliderDescription}>
                   Average slope of the channel at installation point
                 </Text>
