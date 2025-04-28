@@ -69,32 +69,6 @@ ai-forester-app/
 └── README.md               # Project documentation
 ```
 
-## Culvert Sizing Tool
-
-The Culvert Sizing Tool helps forestry engineers properly size culverts for forest road construction. It implements multiple sizing methodologies:
-
-1. **California Method**: Uses a combination of drainage area, regional coefficients, and Manning's equation to determine proper sizing
-2. **Stream Transportability Matrix**: Considers stream characteristics like width-to-depth ratio and gradient to ensure proper material transport
-3. **Climate Projection**: Optional layer that adjusts calculations based on projected future rainfall intensity
-
-### Key Calculations
-
-- Q100 Flow Estimation based on regional curves
-- Manning's equation for hydraulic radius and flow capacity
-- Width-to-depth ratio analysis
-- Cross-sectional area calculation via the end area method
-- Inlet/outlet control determination
-- Safety factor application based on risk assessment
-
-## Field Data Management
-
-The app includes a comprehensive data management system:
-
-- Local storage of field cards
-- Automatic backup when connected to the internet
-- Data export in PDF and CSV formats
-- Location tagging via GPS
-
 ## Development Guidelines
 
 ### Code Style
@@ -147,14 +121,17 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Changelog
 
 ### 2025-04-28
-- Completely refactored icon implementations to resolve rendering errors:
-  - Replaced complex SVG icons with simple colored circles for reliability
-  - Added proper type definitions for navigation
-  - Simplified App.tsx navigation structure
-  - Created placeholder CulvertTool screens (InputScreen and ResultScreen)
-  - Fixed all component rendering errors with simplified approach
-
+- **Complete Ultra-Simplification** to resolve persistent rendering errors:
+  - Created minimal screen components with zero external dependencies
+  - Removed all third-party icon libraries and custom SVG components
+  - Used basic View components to create simple colored circle icons
+  - Eliminated all complex UI elements that could cause rendering issues
+  - Streamlined component props and navigation
+  - Simplified all screen layouts with minimal styling
+  - Created placeholder content for all main screens
+  
 - Previous changes:
-  - Fixed icon imports and props across components
-  - Added missing @react-native-async-storage/async-storage dependency
+  - Replaced complex SVG icons with simpler implementations
+  - Added proper navigation type definitions
+  - Added missing dependencies
   - Updated NavigationContainer implementation
