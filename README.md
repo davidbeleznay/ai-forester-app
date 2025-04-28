@@ -73,26 +73,32 @@ The Culvert Sizing Tool helps forestry professionals calculate the appropriate c
 - **Advanced Options**: Climate change projections and stream transportability considerations
 - **Visual Results**: Clean, intuitive results display with visual representation of the culvert
 - **Technical Recommendations**: Contextual recommendations based on culvert size and site conditions
-- **Share Functionality**: Generate and share detailed reports with colleagues
+- **PDF Reports**: Generate and share detailed reports with colleagues
+- **GPS Location Tracking**: Add precise location data to field cards
+- **Field Card Storage**: Save and recall field calculations for future reference
 
 ### How to Use
 
 1. From the Home screen, tap on the "Culvert Sizing" button
-2. Enter watershed area and channel slope values
-3. Enter stream geometry measurements:
-   - Top widths at one or more points (meters)
-   - Bottom width (meters)
-   - Depths at one or more points (meters)
-4. The cross-sectional area will be calculated automatically
-5. Expand Advanced Options if needed to enable:
-   - Climate change projections
-   - Stream transportability considerations
-6. Tap "Calculate Culvert Size" to get your recommendation
-7. The results screen will show:
-   - Recommended culvert diameter with visual representation
-   - Technical details including flow capacity and controlling factors
-   - Context-specific recommendations
-8. You can share a report or go back to modify your inputs
+2. Enter the required watershed information:
+   - Watershed area (km²)
+   - Precipitation region
+   - Road type
+   - Stream type
+   - Stream gradient (%)
+   - Road width (m)
+3. Tap "Show Advanced Options" to access additional features:
+   - Stream measurements (width and depth points)
+   - Climate change projection adjustment
+   - Field notes
+   - GPS location capture
+4. Tap "Calculate Culvert Size" to get your recommendation
+5. The results screen will show:
+   - Recommended culvert diameter or box dimensions
+   - Visual representation of the culvert size with human scale reference
+   - Flow calculations and capacity information
+   - Transportability assessment
+6. You can save the field card for future reference or export a PDF report
 
 ## Project Structure
 
@@ -104,14 +110,25 @@ ai-forester-app/
 │   ├── App.tsx            # Main app component (without NavigationContainer)
 │   ├── assets/            # Images, icons, and other static files
 │   ├── components/        # Reusable UI components
+│   │   ├── ConnectivityStatus.tsx  # Network status indicator
+│   │   ├── FieldInput.tsx          # Dynamic form input component
+│   │   ├── GPSCapture.tsx          # Location capture component
+│   │   └── ResultVisual.tsx        # Visual representation component
 │   ├── config/            # Configuration files and constants
+│   │   └── constants.ts   # App-wide constants and theme values
 │   ├── navigation/        # Navigation configuration
 │   │   ├── MainAppNavigator.tsx      # Main application navigator
 │   │   └── CulvertToolNavigator.tsx  # Culvert tool navigator
 │   ├── screens/           # Application screens
 │   │   ├── CulvertTool/   # Culvert sizing tool screens
+│   │   │   ├── InputScreen.tsx       # Form inputs for culvert sizing
+│   │   │   ├── ResultScreen.tsx      # Results display screen
+│   │   │   └── HistoryScreen.tsx     # Saved field cards history
 │   │   └── ...            # Other tool screens
 │   └── utils/             # Utility functions and helpers
+│       ├── CulvertCalculator.ts      # Culvert sizing algorithms
+│       ├── pdfExporter.ts            # PDF generation utility
+│       └── storage.ts                # AsyncStorage management
 ├── .gitignore             # Git ignore file
 ├── app.json               # Expo configuration
 ├── babel.config.js        # Babel configuration
@@ -170,6 +187,21 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Built with React Native and Expo
 
 ## Changelog
+
+### 2025-04-28 (v6)
+- **Enhanced Culvert Sizing Tool with Comprehensive Features**:
+  - Implemented advanced culvert sizing algorithms based on hydraulic principles
+  - Added dynamic field measurements for multiple stream width/depth points
+  - Integrated GPS location capturing for field card documentation
+  - Created PDF export functionality with professional formatting
+  - Added field card storage and history management
+  - Implemented real-time calculation feedback
+  - Added visual representation of culvert sizing with human scale reference
+  - Integrated climate change projection adjustments
+  - Added transportability assessment for culvert installation planning
+  - Created reusable components (FieldInput, GPSCapture, ConnectivityStatus)
+  - Improved UI with collapsible advanced options
+  - Added offline-first functionality with network status indicators
 
 ### 2025-04-28 (v5)
 - **Fixed gesture handler and component errors**:
