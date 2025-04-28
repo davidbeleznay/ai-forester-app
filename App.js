@@ -1,12 +1,13 @@
 // App.js at project root
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import AppNav from "./src/App"; // <-- your renamed file
+import App from "./app/App"; // Correct import path to app/App.tsx
 
-export default function App() {
+// Correctly re-export the App component
+export default function AppWrapper() {
   return (
     <NavigationContainer>
-      <AppNav />
+      <App />
     </NavigationContainer>
   );
 }
