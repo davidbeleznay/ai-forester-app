@@ -27,6 +27,10 @@
     "web": {
       "favicon": "./assets/icons/favicon.png"
     },
-    "newArchEnabled": true
+    "newArchEnabled": false,
+    "plugins": [
+      "react-native-gesture-handler"
+    ],
+    "entryPoint": "./index.js"
   }
 }
