@@ -30,7 +30,7 @@ Built with React Native and Expo, this app leverages AI capabilities to enhance 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/aiforester/field-companion.git
+git clone https://github.com/davidbeleznay/ai-forester-app.git
 cd ai-forester-app
 ```
 
@@ -143,3 +143,12 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Developed by AI Forester Technologies
 - Special thanks to the forestry professionals who provided domain expertise
 - Built with React Native and Expo
+
+## Changelog
+
+### 2025-04-27
+- Fixed import path error in App.tsx
+- Added NavigationContainer wrapper in App.tsx
+- Updated HomeSettingsTabs to use lucide-react-native icons instead of react-native-feather
+- Updated icon imports in HomeScreen.tsx to use lucide-react-native
+- Implemented ConnectivityStatus component for offline status display
