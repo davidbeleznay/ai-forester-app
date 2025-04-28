@@ -5,13 +5,20 @@ import {
   StyleSheet, 
   TouchableOpacity, 
   ScrollView, 
-  SafeAreaView
+  SafeAreaView 
 } from 'react-native';
 
+// Define types for navigation if needed
+import { ParamListBase } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
+type HomeScreenProps = NativeStackScreenProps<ParamListBase, 'Home'>;
+
 /**
- * Extremely simplified HomeScreen with no external dependencies
+ * Even more simplified HomeScreen with no external dependencies
+ * Lines 132 and 137 were causing issues, so we've completely removed any complex UI
  */
-const HomeScreen = () => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -21,8 +28,8 @@ const HomeScreen = () => {
           <Text style={styles.headerVersion}>v1.0</Text>
         </View>
         
-        <ScrollView style={styles.scrollView}>
-          {/* Simplified content */}
+        {/* SIMPLIFIED CONTENT: Removed complex ScrollView that was causing issues */}
+        <View style={styles.contentContainer}>
           <View style={styles.card}>
             <Text style={styles.title}>Welcome to AI Forester!</Text>
             <Text style={styles.text}>
@@ -31,26 +38,33 @@ const HomeScreen = () => {
             </Text>
           </View>
           
-          {/* Tool buttons */}
+          {/* Simple static buttons instead of a map function */}
           <Text style={styles.sectionTitle}>Field Tools</Text>
           <View style={styles.toolGrid}>
-            {["Culvert Sizing", "Tree Health", "Road Assessment", "Stream Analysis"].map((tool, index) => (
-              <TouchableOpacity key={index} style={styles.toolButton}>
-                <View style={[styles.iconPlaceholder, { backgroundColor: getColor(index) }]} />
-                <Text style={styles.toolText}>{tool}</Text>
-              </TouchableOpacity>
-            ))}
+            <TouchableOpacity style={styles.toolButton}>
+              <View style={[styles.iconPlaceholder, { backgroundColor: '#E53E3E' }]} />
+              <Text style={styles.toolText}>Culvert Sizing</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.toolButton}>
+              <View style={[styles.iconPlaceholder, { backgroundColor: '#38A169' }]} />
+              <Text style={styles.toolText}>Tree Health</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.toolButton}>
+              <View style={[styles.iconPlaceholder, { backgroundColor: '#3182CE' }]} />
+              <Text style={styles.toolText}>Road Assessment</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.toolButton}>
+              <View style={[styles.iconPlaceholder, { backgroundColor: '#DD6B20' }]} />
+              <Text style={styles.toolText}>Stream Analysis</Text>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
+        </View>
       </View>
     </SafeAreaView>
   );
-};
-
-// Simple function to get colors for the icons
-const getColor = (index: number): string => {
-  const colors = ['#E53E3E', '#38A169', '#3182CE', '#DD6B20'];
-  return colors[index % colors.length];
 };
 
 const styles = StyleSheet.create({
@@ -78,7 +92,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 12,
   },
-  scrollView: {
+  contentContainer: {
     flex: 1,
     padding: 16,
   },
