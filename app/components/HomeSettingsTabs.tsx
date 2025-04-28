@@ -2,10 +2,17 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View } from 'react-native';
 
-// Import screens directly
+// Import screens
 import HomeScreen from '../screens/HomeScreen';
 import InstructionsScreen from '../screens/InstructionsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+
+// Define navigation types
+type TabParamList = {
+  Home: undefined;
+  Instructions: undefined;
+  Settings: undefined;
+};
 
 // Define a simple icon component to avoid external dependencies
 const SimpleIcon = ({ color }: { color: string }) => {
@@ -21,10 +28,10 @@ const SimpleIcon = ({ color }: { color: string }) => {
   );
 };
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<TabParamList>();
 
-// Extremely simplified tab navigator with no external dependencies
-const HomeSettingsTabs = () => {
+// Tab navigator with explicit typing
+const HomeSettingsTabs: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
