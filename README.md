@@ -49,6 +49,29 @@ npx expo start --clear
    - Press 'i' for iOS simulator
    - Scan the QR code with Expo Go app on your physical device
 
+## Using the Culvert Sizing Tool
+
+The Culvert Sizing Tool helps forestry professionals calculate the appropriate culvert size based on watershed characteristics and stream measurements.
+
+1. From the Home screen, tap on the "Culvert Sizing" button
+2. Enter the required watershed information:
+   - Drainage area (hectares)
+   - Stream gradient (%)
+   - Geographic region
+   - Culvert material
+3. Input stream geometry measurements:
+   - Top widths at three points (meters)
+   - Bottom width (meters)
+   - Depths at three points (meters)
+4. Optional: Enable climate change projections and/or stream transportability considerations
+5. Tap "Calculate" to get your culvert sizing recommendation
+6. The results screen will show:
+   - Recommended culvert diameter
+   - Flow capacity
+   - Controlling factors
+   - Notes and recommendations
+7. You can share a report or go back to modify your inputs
+
 ## Project Structure
 
 ```
@@ -61,6 +84,8 @@ ai-forester-app/
 │   ├── components/        # Reusable UI components
 │   ├── config/            # Configuration files and constants
 │   ├── navigation/        # Navigation configuration
+│   │   ├── MainAppNavigator.tsx      # Main application navigator
+│   │   └── CulvertToolNavigator.tsx  # Culvert tool navigator
 │   ├── screens/           # Application screens
 │   │   ├── CulvertTool/   # Culvert sizing tool screens
 │   │   └── ...            # Other tool screens
@@ -123,6 +148,18 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Built with React Native and Expo
 
 ## Changelog
+
+### 2025-04-28 (v3)
+- **Implemented Culvert Sizing Tool functionality**:
+  - Created CulvertToolNavigator for tool navigation
+  - Implemented Input screen with form fields for watershed characteristics
+  - Added stream geometry measurement inputs
+  - Implemented calculation functionality based on culvertLogic.ts
+  - Created Results screen to display recommended culvert size
+  - Added ability to share culvert sizing reports
+  - Integrated tool with main application navigation
+  - Updated HomeScreen to navigate to the Culvert Tool
+  - Created MainAppNavigator to manage overall app navigation
 
 ### 2025-04-28 (v2)
 - **Fixed application structure to resolve rendering errors**:
