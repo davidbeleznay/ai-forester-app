@@ -7,48 +7,10 @@ import {
   TouchableOpacity,
   SafeAreaView
 } from 'react-native';
-import { COLORS, SPACING } from '../config/constants';
 
-// Simple colored circle icon component
-const SimpleIcon = ({ color, size }: { color: string, size: number }) => (
-  <View style={{ 
-    width: size, 
-    height: size, 
-    backgroundColor: color,
-    borderRadius: size / 2 
-  }} />
-);
-
-interface ToolGuideProps {
-  iconColor: string;
-  iconBgColor: string;
-  title: string;
-  description: string;
-  onPress: () => void;
-}
-
-const ToolGuide: React.FC<ToolGuideProps> = ({
-  iconColor,
-  iconBgColor,
-  title,
-  description,
-  onPress
-}) => (
-  <TouchableOpacity 
-    style={styles.toolGuideItem}
-    onPress={onPress}
-  >
-    <View style={[styles.toolGuideIcon, { backgroundColor: iconBgColor }]}>
-      <SimpleIcon size={16} color={iconColor} />
-    </View>
-    <View style={styles.toolGuideContent}>
-      <Text style={styles.toolGuideTitle}>{title}</Text>
-      <Text style={styles.toolGuideDescription}>{description}</Text>
-    </View>
-    <SimpleIcon size={16} color={COLORS.gray[400]} />
-  </TouchableOpacity>
-);
-
+/**
+ * Ultra-simplified InstructionsScreen with no external dependencies
+ */
 const InstructionsScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -60,148 +22,38 @@ const InstructionsScreen = () => {
         </View>
         
         <ScrollView style={styles.scrollView}>
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Tool Guides</Text>
-            
-            <View style={styles.toolGuideContainer}>
-              <ToolGuide
-                iconColor={COLORS.danger}
-                iconBgColor={COLORS.danger + '20'}
-                title="Culvert Sizing"
-                description="How to properly size culverts for forestry roads"
-                onPress={() => console.log('Culvert guide')}
-              />
-              
-              <ToolGuide
-                iconColor={COLORS.success}
-                iconBgColor={COLORS.success + '20'}
-                title="Tree Health"
-                description="Using vision analysis to assess tree health conditions"
-                onPress={() => console.log('Tree health guide')}
-              />
-              
-              <ToolGuide
-                iconColor={COLORS.secondary}
-                iconBgColor={COLORS.secondary + '20'}
-                title="Wolman Pebble Count"
-                description="Automated streambed material assessment"
-                onPress={() => console.log('Wolman guide')}
-              />
-              
-              <ToolGuide
-                iconColor={COLORS.info}
-                iconBgColor={COLORS.info + '20'}
-                title="Road Inspection"
-                description="AI-powered risk analysis for forestry roads"
-                onPress={() => console.log('Road inspection guide')}
-              />
+          <View style={styles.card}>
+            <Text style={styles.title}>Welcome to AI Forester!</Text>
+            <Text style={styles.text}>
+              This is a simplified version of the Instructions screen to resolve 
+              rendering issues. Once this version loads successfully, we can gradually 
+              add back features and detailed instructions.
+            </Text>
+          </View>
+          
+          <View style={styles.card}>
+            <Text style={styles.title}>App Features</Text>
+            <View style={styles.featureItem}>
+              <View style={[styles.dot, { backgroundColor: '#E53E3E' }]} />
+              <Text style={styles.featureText}>Culvert Sizing Tool</Text>
+            </View>
+            <View style={styles.featureItem}>
+              <View style={[styles.dot, { backgroundColor: '#38A169' }]} />
+              <Text style={styles.featureText}>Tree Health Assessment</Text>
+            </View>
+            <View style={styles.featureItem}>
+              <View style={[styles.dot, { backgroundColor: '#3182CE' }]} />
+              <Text style={styles.featureText}>Offline Data Collection</Text>
+            </View>
+            <View style={styles.featureItem}>
+              <View style={[styles.dot, { backgroundColor: '#DD6B20' }]} />
+              <Text style={styles.featureText}>PDF Export Capability</Text>
             </View>
           </View>
           
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>General Tips</Text>
-            
-            <View style={styles.card}>
-              <View style={styles.tipItem}>
-                <View style={styles.tipHeader}>
-                  <SimpleIcon size={18} color={COLORS.primary} />
-                  <Text style={styles.tipTitle}>Offline Usage</Text>
-                </View>
-                <Text style={styles.tipContent}>
-                  All tools function without internet connection. Sync when connection is available.
-                </Text>
-              </View>
-              
-              <View style={styles.divider} />
-              
-              <View style={styles.tipItem}>
-                <View style={styles.tipHeader}>
-                  <SimpleIcon size={18} color={COLORS.primary} />
-                  <Text style={styles.tipTitle}>Data Backup</Text>
-                </View>
-                <Text style={styles.tipContent}>
-                  Field cards are automatically backed up when you connect to the internet.
-                </Text>
-              </View>
-              
-              <View style={styles.divider} />
-              
-              <View style={styles.tipItem}>
-                <View style={styles.tipHeader}>
-                  <SimpleIcon size={18} color={COLORS.primary} />
-                  <Text style={styles.tipTitle}>Battery Optimization</Text>
-                </View>
-                <Text style={styles.tipContent}>
-                  Turn on Battery Saver mode in Settings for extended field use.
-                </Text>
-              </View>
-            </View>
-          </View>
-          
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Quick Reference</Text>
-            
-            <View style={styles.card}>
-              <View style={styles.referenceItem}>
-                <SimpleIcon size={18} color={COLORS.primary} />
-                <View style={styles.referenceContent}>
-                  <Text style={styles.referenceTitle}>Culvert Sizing Guidelines</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.referenceLink}>View PDF</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              
-              <View style={styles.divider} />
-              
-              <View style={styles.referenceItem}>
-                <SimpleIcon size={18} color={COLORS.primary} />
-                <View style={styles.referenceContent}>
-                  <Text style={styles.referenceTitle}>Stream Classification Reference</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.referenceLink}>View PDF</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              
-              <View style={styles.divider} />
-              
-              <View style={styles.referenceItem}>
-                <SimpleIcon size={18} color={COLORS.primary} />
-                <View style={styles.referenceContent}>
-                  <Text style={styles.referenceTitle}>Field Assessment Checklists</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.referenceLink}>View PDF</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </View>
-          
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Help & Support</Text>
-            
-            <View style={styles.card}>
-              <TouchableOpacity style={styles.supportItem}>
-                <Text style={styles.supportTitle}>Contact Support</Text>
-                <SimpleIcon size={16} color={COLORS.gray[400]} />
-              </TouchableOpacity>
-              
-              <View style={styles.divider} />
-              
-              <TouchableOpacity style={styles.supportItem}>
-                <Text style={styles.supportTitle}>Report a Bug</Text>
-                <SimpleIcon size={16} color={COLORS.gray[400]} />
-              </TouchableOpacity>
-              
-              <View style={styles.divider} />
-              
-              <TouchableOpacity style={styles.supportItem}>
-                <Text style={styles.supportTitle}>Frequently Asked Questions</Text>
-                <SimpleIcon size={16} color={COLORS.gray[400]} />
-              </TouchableOpacity>
-            </View>
-          </View>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>Download User Manual</Text>
+          </TouchableOpacity>
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -211,141 +63,80 @@ const InstructionsScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#2F855A', // Green primary color
   },
   container: {
     flex: 1,
-    backgroundColor: COLORS.gray[100],
+    backgroundColor: '#F7FAFC', // Light background
   },
   header: {
-    backgroundColor: COLORS.primary,
-    padding: SPACING.md,
+    backgroundColor: '#2F855A',
+    padding: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   headerTitle: {
-    color: COLORS.white,
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
   },
   headerVersion: {
-    color: COLORS.white,
+    color: '#FFFFFF',
     fontSize: 12,
   },
   scrollView: {
     flex: 1,
-    padding: SPACING.md,
-  },
-  section: {
-    marginBottom: SPACING.lg,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.gray[800],
-    marginBottom: SPACING.sm,
-  },
-  toolGuideContainer: {
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    overflow: 'hidden',
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  toolGuideItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: SPACING.md,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray[200],
-  },
-  toolGuideIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: SPACING.md,
-  },
-  toolGuideContent: {
-    flex: 1,
-  },
-  toolGuideTitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.gray[800],
-    marginBottom: 2,
-  },
-  toolGuideDescription: {
-    fontSize: 12,
-    color: COLORS.gray[600],
+    padding: 16,
   },
   card: {
-    backgroundColor: COLORS.white,
+    backgroundColor: '#FFFFFF',
     borderRadius: 8,
-    overflow: 'hidden',
-    shadowColor: COLORS.black,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
-  tipItem: {
-    padding: SPACING.md,
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1A202C',
+    marginBottom: 8,
   },
-  tipHeader: {
+  text: {
+    fontSize: 14,
+    color: '#4A5568',
+    lineHeight: 20,
+  },
+  featureItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: SPACING.xs,
+    marginBottom: 8,
   },
-  tipTitle: {
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  featureText: {
     fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.gray[800],
-    marginLeft: SPACING.sm,
+    color: '#4A5568',
   },
-  tipContent: {
-    fontSize: 13,
-    color: COLORS.gray[600],
-    paddingLeft: 26, // Align with title text
-  },
-  divider: {
-    height: 1,
-    backgroundColor: COLORS.gray[200],
-  },
-  referenceItem: {
-    flexDirection: 'row',
-    padding: SPACING.md,
+  button: {
+    backgroundColor: '#2F855A',
+    borderRadius: 4,
+    padding: 12,
     alignItems: 'center',
+    marginTop: 8,
   },
-  referenceContent: {
-    flex: 1,
-    marginLeft: SPACING.sm,
-  },
-  referenceTitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.gray[800],
-  },
-  referenceLink: {
-    fontSize: 12,
-    color: COLORS.primary,
-    marginTop: 2,
-  },
-  supportItem: {
-    flexDirection: 'row',
-    padding: SPACING.md,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  supportTitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.gray[800],
+  buttonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });
 
