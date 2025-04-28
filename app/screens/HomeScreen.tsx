@@ -11,14 +11,18 @@ import {
 // Define types for navigation if needed
 import { ParamListBase } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { COLORS } from '../config/constants';
 
 type HomeScreenProps = NativeStackScreenProps<ParamListBase, 'Home'>;
 
 /**
- * Even more simplified HomeScreen with no external dependencies
- * Lines 132 and 137 were causing issues, so we've completely removed any complex UI
+ * HomeScreen with functional navigation to Culvert Sizing Tool
  */
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+  const navigateToCulvertTool = () => {
+    navigation.navigate('CulvertTool');
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -28,36 +32,39 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <Text style={styles.headerVersion}>v1.0</Text>
         </View>
         
-        {/* SIMPLIFIED CONTENT: Removed complex ScrollView that was causing issues */}
+        {/* Main Content */}
         <View style={styles.contentContainer}>
           <View style={styles.card}>
             <Text style={styles.title}>Welcome to AI Forester!</Text>
             <Text style={styles.text}>
-              This is a simplified version of the app to resolve rendering issues.
-              Once this version loads successfully, we can gradually add back features.
+              Use the tools below to perform field calculations and assessments for forestry applications.
+              Select the Culvert Sizing tool to get started with your culvert design.
             </Text>
           </View>
           
-          {/* Simple static buttons instead of a map function */}
+          {/* Field Tools */}
           <Text style={styles.sectionTitle}>Field Tools</Text>
           <View style={styles.toolGrid}>
-            <TouchableOpacity style={styles.toolButton}>
-              <View style={[styles.iconPlaceholder, { backgroundColor: '#E53E3E' }]} />
+            <TouchableOpacity 
+              style={styles.toolButton}
+              onPress={navigateToCulvertTool}
+            >
+              <View style={[styles.iconPlaceholder, { backgroundColor: COLORS.danger }]} />
               <Text style={styles.toolText}>Culvert Sizing</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.toolButton}>
-              <View style={[styles.iconPlaceholder, { backgroundColor: '#38A169' }]} />
+              <View style={[styles.iconPlaceholder, { backgroundColor: COLORS.success }]} />
               <Text style={styles.toolText}>Tree Health</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.toolButton}>
-              <View style={[styles.iconPlaceholder, { backgroundColor: '#3182CE' }]} />
+              <View style={[styles.iconPlaceholder, { backgroundColor: COLORS.info }]} />
               <Text style={styles.toolText}>Road Assessment</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.toolButton}>
-              <View style={[styles.iconPlaceholder, { backgroundColor: '#DD6B20' }]} />
+              <View style={[styles.iconPlaceholder, { backgroundColor: COLORS.warning }]} />
               <Text style={styles.toolText}>Stream Analysis</Text>
             </TouchableOpacity>
           </View>
@@ -70,26 +77,26 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#2F855A', // Green primary color
+    backgroundColor: COLORS.primary,
   },
   container: {
     flex: 1,
-    backgroundColor: '#F7FAFC', // Light background
+    backgroundColor: COLORS.gray[100],
   },
   header: {
-    backgroundColor: '#2F855A',
+    backgroundColor: COLORS.primary,
     padding: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   headerTitle: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 18,
     fontWeight: 'bold',
   },
   headerVersion: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 12,
   },
   contentContainer: {
@@ -97,11 +104,11 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -110,18 +117,18 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1A202C',
+    color: COLORS.gray[800],
     marginBottom: 8,
   },
   text: {
     fontSize: 14,
-    color: '#4A5568',
+    color: COLORS.gray[600],
     lineHeight: 20,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1A202C',
+    color: COLORS.gray[800],
     marginBottom: 8,
   },
   toolGrid: {
@@ -130,13 +137,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   toolButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 16,
     width: '48%',
     marginBottom: 16,
     alignItems: 'center',
-    shadowColor: '#000000',
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -151,7 +158,7 @@ const styles = StyleSheet.create({
   toolText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#1A202C',
+    color: COLORS.gray[800],
     textAlign: 'center',
   },
 });
