@@ -53,24 +53,35 @@ npx expo start --clear
 
 The Culvert Sizing Tool helps forestry professionals calculate the appropriate culvert size based on watershed characteristics and stream measurements.
 
+### Features
+
+- **Interactive Sliders**: Easy adjustment of watershed area and channel slope values
+- **Real-time Calculations**: Dynamic calculation of cross-sectional area as you input stream measurements
+- **Advanced Options**: Climate change projections and stream transportability considerations
+- **Visual Results**: Clean, intuitive results display with visual representation of the culvert
+- **Technical Recommendations**: Contextual recommendations based on culvert size and site conditions
+- **Share Functionality**: Generate and share detailed reports with colleagues
+
+### How to Use
+
 1. From the Home screen, tap on the "Culvert Sizing" button
-2. Enter the required watershed information:
-   - Drainage area (hectares)
-   - Stream gradient (%)
-   - Geographic region
-   - Culvert material
-3. Input stream geometry measurements:
-   - Top widths at three points (meters)
+2. Use the sliders to adjust watershed area and channel slope:
+   - Drag the slider or directly enter values in the text field
+   - Values update dynamically in both the slider and text input
+3. Enter stream geometry measurements:
+   - Top widths at one or more points (meters)
    - Bottom width (meters)
-   - Depths at three points (meters)
-4. Optional: Enable climate change projections and/or stream transportability considerations
-5. Tap "Calculate" to get your culvert sizing recommendation
-6. The results screen will show:
-   - Recommended culvert diameter
-   - Flow capacity
-   - Controlling factors
-   - Notes and recommendations
-7. You can share a report or go back to modify your inputs
+   - Depths at one or more points (meters)
+4. The cross-sectional area will be calculated automatically
+5. Expand Advanced Options if needed to enable:
+   - Climate change projections
+   - Stream transportability considerations
+6. Tap "Calculate Culvert Size" to get your recommendation
+7. The results screen will show:
+   - Recommended culvert diameter with visual representation
+   - Technical details including flow capacity and controlling factors
+   - Context-specific recommendations
+8. You can share a report or go back to modify your inputs
 
 ## Project Structure
 
@@ -148,6 +159,17 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Built with React Native and Expo
 
 ## Changelog
+
+### 2025-04-28 (v4)
+- **Enhanced Culvert Sizing Tool UI**:
+  - Added interactive sliders for watershed area and channel slope inputs
+  - Implemented dynamic calculation of cross-sectional area
+  - Improved visual layout with cleaner card-based design
+  - Enhanced results screen with culvert visualization
+  - Added context-aware recommendations based on culvert size
+  - Improved sharing functionality with loading indicators
+  - Added collapsible advanced options section
+  - Added technical notes with additional installation guidance
 
 ### 2025-04-28 (v3)
 - **Implemented Culvert Sizing Tool functionality**:
