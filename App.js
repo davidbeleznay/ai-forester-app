@@ -1,14 +1,13 @@
-// App.js at project root
-import 'react-native-gesture-handler'; // This import must be at the top
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { View, Text, StyleSheet } from 'react-native';
 
-// Simple App component without navigation or complex imports
 export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>AI Forester Field Companion</Text>
-      <Text style={styles.subtext}>Loading...</Text>
+      <Text style={styles.subtext}>Minimal App Test</Text>
+      <StatusBar style="auto" />
     </View>
   );
 }
