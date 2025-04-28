@@ -1,5 +1,50 @@
 # AI Forester Field Companion App
 
+## CRITICAL TROUBLESHOOTING GUIDE
+
+If you're still experiencing the gesture handler error after our previous fixes, here are two options:
+
+### Option 1: Clean Start With Existing Project
+
+1. **Delete node_modules and clean install:**
+   ```powershell
+   Remove-Item -Recurse -Force node_modules
+   npm cache clean --force
+   npm install
+   ```
+
+2. **Clear Expo cache:**
+   ```powershell
+   npx expo-doctor clear-cache
+   npx expo start --clear
+   ```
+
+3. **Test minimal app version:**
+   The app has been simplified to a basic version without navigation or advanced components. This should run in Expo Go without any errors.
+
+### Option 2: Create a Fresh Expo Project (RECOMMENDED)
+
+If you continue having issues, creating a new project may be the fastest solution:
+
+1. **Create a new Expo project:**
+   ```powershell
+   npx create-expo-app AI-Forester-New
+   cd AI-Forester-New
+   ```
+
+2. **Install basic dependencies:**
+   ```powershell
+   npm install @react-navigation/native @react-navigation/native-stack react-native-screens react-native-safe-area-context
+   ```
+
+3. **Start the new project:**
+   ```powershell
+   npx expo start
+   ```
+
+4. **Copy over components one by one:**
+   Once the base app is working, copy over components from the original project one by one, testing after each addition.
+
 ## Project Overview
 
 The AI Forester Field Companion is a mobile application designed for forestry professionals who need to perform field calculations and assessments while working in remote areas. The app is specifically optimized for field use with offline functionality, battery conservation features, and interfaces designed for outdoor visibility.
@@ -53,54 +98,49 @@ npx expo start --clear
 
 If you encounter the following errors:
 
-- **Gesture Handler not found**: Make sure `import 'react-native-gesture-handler'` is at the top of both `App.js` and `index.js` files.
-- **TypeError: Cannot convert undefined value to object**: This usually indicates an issue with component props or state. Check that all objects have proper initialization.
-- **Unable to resolve module**: Run `npm install` to ensure all dependencies are installed.
+- **Gesture Handler not found**: This typically happens when the app tries to use gesture handler functionality before it's fully initialized. Some solutions:
+  - Make sure the import is at the top of both App.js and index.js files
+  - In Expo managed workflow, try removing the gesture-handler import temporarily
+  - Try using a simplified app structure without navigation dependencies
 
-To fix common issues:
-1. Clear Metro bundler cache: `expo start --clear`
-2. Ensure gesture-handler is properly installed: `npm install react-native-gesture-handler --save`
-3. Check that your Expo SDK version matches the dependencies in package.json
+- **TypeError: Cannot convert undefined value to object**: 
+  - Check for missing or undefined properties in objects
+  - Ensure all objects are properly initialized
+  - Check for typos in property names
+  - Use conditional checks before accessing nested properties
 
-## Using the Culvert Sizing Tool
+- **Unable to resolve module**: 
+  - Run `npm install` to ensure all dependencies are installed
+  - Check if the module is properly listed in package.json
+  - Try adding the specific missing dependency
 
-The Culvert Sizing Tool helps forestry professionals calculate the appropriate culvert size based on watershed characteristics and stream measurements.
+## Working With Expo
 
-### Features
+When working with Expo, keep these tips in mind:
 
-- **Interactive Inputs**: Easy adjustment of watershed area and channel slope values
-- **Real-time Calculations**: Dynamic calculation of cross-sectional area as you input stream measurements
-- **Advanced Options**: Climate change projections and stream transportability considerations
-- **Visual Results**: Clean, intuitive results display with visual representation of the culvert
-- **Technical Recommendations**: Contextual recommendations based on culvert size and site conditions
-- **PDF Reports**: Generate and share detailed reports with colleagues
-- **GPS Location Tracking**: Add precise location data to field cards
-- **Field Card Storage**: Save and recall field calculations for future reference
+1. **Clear cache regularly:**
+   ```
+   npx expo start --clear
+   ```
 
-### How to Use
+2. **Check Expo compatibility:**
+   Not all React Native libraries work with Expo Go. Some require custom native code that's not supported in the managed workflow.
 
-1. From the Home screen, tap on the "Culvert Sizing" button
-2. Enter the required watershed information:
-   - Watershed area (km²)
-   - Precipitation region
-   - Road type
-   - Stream type
-   - Stream gradient (%)
-   - Road width (m)
-3. Tap "Show Advanced Options" to access additional features:
-   - Stream measurements (width and depth points)
-   - Climate change projection adjustment
-   - Field notes
-   - GPS location capture
-4. Tap "Calculate Culvert Size" to get your recommendation
-5. The results screen will show:
-   - Recommended culvert diameter or box dimensions
-   - Visual representation of the culvert size with human scale reference
-   - Flow calculations and capacity information
-   - Transportability assessment
-6. You can save the field card for future reference or export a PDF report
+3. **Use Expo versions:**
+   Many libraries have Expo-compatible versions (like `@react-navigation/native` instead of direct React Navigation).
+
+4. **Simplify for testing:**
+   When facing persistent errors, try a minimal app version to identify the problematic component.
 
 ## Changelog
+
+### 2025-04-28 (v8)
+- **Created ultra-minimal app version to resolve bundling errors**:
+  - Removed all gesture handler and advanced navigation dependencies
+  - Created a basic one-screen app as a starting point
+  - Simplified configuration files
+  - Added detailed troubleshooting guide
+  - Provided instructions for creating a fresh project if needed
 
 ### 2025-04-28 (v7)
 - **Fixed bundling issues and dependency problems**:
@@ -128,7 +168,7 @@ The Culvert Sizing Tool helps forestry professionals calculate the appropriate c
 
 ### 2025-04-28 (v5)
 - **Fixed gesture handler and component errors**:
-  - Added gesture-handler import at the top of both App.js and index.js
+  - Added gesture-handler import at the top of App.js and index.js
   - Removed slider component to address TypeError issues
   - Implemented simpler form with standard inputs
   - Updated README with troubleshooting section
@@ -156,23 +196,3 @@ The Culvert Sizing Tool helps forestry professionals calculate the appropriate c
   - Integrated tool with main application navigation
   - Updated HomeScreen to navigate to the Culvert Tool
   - Created MainAppNavigator to manage overall app navigation
-
-### 2025-04-28 (v2)
-- **Fixed application structure to resolve rendering errors**:
-  - Corrected App.js to properly reference app/App.tsx
-  - Removed duplicate NavigationContainer in app/App.tsx
-  - Fully simplified HomeScreen with static components and no ScrollView
-  - Fixed invalid component references
-  - Added more explicit TypeScript typing in all components
-  - Fixed HomeScreen lines 132-137 that were causing crashes
-  - Ensured proper import/export pattern consistency
-  - Updated index.js to reference root App.js
-
-### 2025-04-28 (v1)
-- **Fixed Application Entry Point Structure**:
-  - Added index.js at the root to properly register the App component
-  - Fixed App.tsx with proper SafeAreaProvider wrapping
-  - Updated HomeSettingsTabs with explicit TypeScript interfaces
-  - Added babel.config.js for proper transpilation
-  - Fixed component type definitions and navigation setup
-  - Ensured consistent export patterns across component files
