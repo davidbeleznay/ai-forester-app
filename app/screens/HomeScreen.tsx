@@ -9,12 +9,12 @@ import {
   SafeAreaView
 } from 'react-native';
 import { 
-  Droplets, 
+  Droplet, 
   Wind, 
   Thermometer, 
   Camera, 
   Layers, 
-  AlertTriangle
+  AlertTriangle 
 } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, FIELD_TOOLS, DEFAULT_SETTINGS } from '../config/constants';
@@ -160,9 +160,9 @@ const HomeScreen = () => {
       >
         <View style={[styles.cardIcon, { backgroundColor: iconBgColor }]}>
           {iconName === 'droplet' ? (
-            <Droplets width={20} height={20} color={iconColor} />
+            <Droplet size={20} color={iconColor} />
           ) : iconName === 'camera' ? (
-            <Camera width={20} height={20} color={iconColor} />
+            <Camera size={20} color={iconColor} />
           ) : (
             <CustomIcon name={iconName} color={iconColor} size={20} />
           )}
@@ -192,16 +192,16 @@ const HomeScreen = () => {
           {/* Location Bar */}
           <View style={styles.locationBar}>
             <View style={styles.locationInfo}>
-              <Droplets width={18} height={18} color={COLORS.primary} />
+              <Droplet size={18} color={COLORS.primary} />
               <Text style={styles.locationText}>{weather.location}</Text>
             </View>
             <View style={styles.weatherInfo}>
               <View style={styles.weatherItem}>
-                <Wind width={16} height={16} color={COLORS.primary} />
+                <Wind size={16} color={COLORS.primary} />
                 <Text style={styles.weatherText}>{weather.windSpeed} km/h</Text>
               </View>
               <View style={styles.weatherItem}>
-                <Thermometer width={16} height={16} color={COLORS.primary} />
+                <Thermometer size={16} color={COLORS.primary} />
                 <Text style={styles.weatherText}>{weather.temperature}°C</Text>
               </View>
             </View>
@@ -252,13 +252,13 @@ const HomeScreen = () => {
                     ]}
                   >
                     {tool.icon === 'droplet' ? (
-                      <Droplets width={18} height={18} color={tool.iconColor} />
+                      <Droplet size={18} color={tool.iconColor} />
                     ) : tool.icon === 'camera' ? (
-                      <Camera width={18} height={18} color={tool.iconColor} />
+                      <Camera size={18} color={tool.iconColor} />
                     ) : tool.icon === 'layers' ? (
-                      <Layers width={18} height={18} color={tool.iconColor} />
+                      <Layers size={18} color={tool.iconColor} />
                     ) : tool.icon === 'alert-triangle' ? (
-                      <AlertTriangle width={18} height={18} color={tool.iconColor} />
+                      <AlertTriangle size={18} color={tool.iconColor} />
                     ) : (
                       <CustomIcon name={tool.icon} color={tool.iconColor} size={18} />
                     )}
