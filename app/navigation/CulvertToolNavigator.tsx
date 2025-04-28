@@ -4,20 +4,13 @@ import { createStackNavigator } from '@react-navigation/stack';
 // Import screens
 import InputScreen from '../screens/CulvertTool/InputScreen';
 import ResultScreen from '../screens/CulvertTool/ResultScreen';
+import { CulvertFieldCard } from '../utils/storage';
 
 // Define the param list for this navigator
 export type CulvertToolParamList = {
   Input: undefined;
-  Result: {
-    culvertResults: {
-      recommendedSize: number;
-      method: string;
-      transportabilitySize?: number;
-      q100Flow?: number;
-      safetyFactor: number;
-      controllingFactor: 'inlet' | 'outlet';
-      comparisonInfo?: string;
-    };
+  CulvertResult: {
+    fieldCard: CulvertFieldCard;
   };
 };
 
@@ -32,7 +25,7 @@ const CulvertToolNavigator: React.FC = () => {
       }}
     >
       <Stack.Screen name="Input" component={InputScreen} />
-      <Stack.Screen name="Result" component={ResultScreen} />
+      <Stack.Screen name="CulvertResult" component={ResultScreen} />
     </Stack.Navigator>
   );
 };
