@@ -147,8 +147,14 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Changelog
 
 ### 2025-04-28
-- Fixed icon imports in HomeScreen.tsx by changing Droplets to Droplet and updating icon props
-- Fixed icon imports in InstructionsScreen.tsx to use lucide-react-native instead of react-native-feather
-- Updated App.tsx with NavigationContainer wrapper
-- Added implementation for ConnectivityStatus component
-- Added missing @react-native-async-storage/async-storage dependency
+- Major refactoring of icon implementations:
+  - Replaced Lucide icon components with custom SVG implementations in HomeScreen.tsx
+  - Replaced Lucide icon components with custom SVG implementations in InstructionsScreen.tsx
+  - Fixed rendering errors by using native SVG elements directly
+  - Added getIconComponent helper function to centralize icon rendering
+- Previous changes:
+  - Fixed icon imports in HomeScreen.tsx by changing Droplets to Droplet
+  - Updated icon props to use size/color instead of width/height/stroke
+  - Updated App.tsx with NavigationContainer wrapper
+  - Added implementation for ConnectivityStatus component
+  - Added missing @react-native-async-storage/async-storage dependency
