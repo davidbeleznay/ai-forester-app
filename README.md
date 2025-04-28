@@ -49,13 +49,26 @@ npx expo start --clear
    - Press 'i' for iOS simulator
    - Scan the QR code with Expo Go app on your physical device
 
+## Troubleshooting
+
+If you encounter the following errors:
+
+- **Gesture Handler not found**: Make sure `import 'react-native-gesture-handler'` is at the top of both `App.js` and `index.js` files.
+- **TypeError: Cannot convert undefined value to object**: This usually indicates an issue with component props or state. Check that all objects have proper initialization.
+- **Unable to resolve module**: Run `npm install` to ensure all dependencies are installed.
+
+To fix common issues:
+1. Clear Metro bundler cache: `expo start --clear`
+2. Ensure gesture-handler is properly installed: `npm install react-native-gesture-handler --save`
+3. Check that your Expo SDK version matches the dependencies in package.json
+
 ## Using the Culvert Sizing Tool
 
 The Culvert Sizing Tool helps forestry professionals calculate the appropriate culvert size based on watershed characteristics and stream measurements.
 
 ### Features
 
-- **Interactive Sliders**: Easy adjustment of watershed area and channel slope values
+- **Interactive Inputs**: Easy adjustment of watershed area and channel slope values
 - **Real-time Calculations**: Dynamic calculation of cross-sectional area as you input stream measurements
 - **Advanced Options**: Climate change projections and stream transportability considerations
 - **Visual Results**: Clean, intuitive results display with visual representation of the culvert
@@ -65,9 +78,7 @@ The Culvert Sizing Tool helps forestry professionals calculate the appropriate c
 ### How to Use
 
 1. From the Home screen, tap on the "Culvert Sizing" button
-2. Use the sliders to adjust watershed area and channel slope:
-   - Drag the slider or directly enter values in the text field
-   - Values update dynamically in both the slider and text input
+2. Enter watershed area and channel slope values
 3. Enter stream geometry measurements:
    - Top widths at one or more points (meters)
    - Bottom width (meters)
@@ -160,9 +171,17 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Changelog
 
+### 2025-04-28 (v5)
+- **Fixed gesture handler and component errors**:
+  - Added gesture-handler import at the top of App.js and index.js
+  - Removed slider component to address TypeError issues
+  - Implemented simpler form with standard inputs
+  - Updated README with troubleshooting section
+  - Fixed component configuration to ensure compatible rendering
+
 ### 2025-04-28 (v4)
 - **Enhanced Culvert Sizing Tool UI**:
-  - Added interactive sliders for watershed area and channel slope inputs
+  - Added interactive inputs for watershed area and channel slope
   - Implemented dynamic calculation of cross-sectional area
   - Improved visual layout with cleaner card-based design
   - Enhanced results screen with culvert visualization
@@ -202,19 +221,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
   - Added babel.config.js for proper transpilation
   - Fixed component type definitions and navigation setup
   - Ensured consistent export patterns across component files
-
-- Previous changes:
-  - **Complete Ultra-Simplification** to resolve persistent rendering errors:
-    - Created minimal screen components with zero external dependencies
-    - Removed all third-party icon libraries and custom SVG components
-    - Used basic View components to create simple colored circle icons
-    - Eliminated all complex UI elements that could cause rendering issues
-    - Streamlined component props and navigation
-    - Simplified all screen layouts with minimal styling
-    - Created placeholder content for all main screens
-  
-  - Earlier changes:
-    - Replaced complex SVG icons with simpler implementations
-    - Added proper navigation type definitions
-    - Added missing dependencies
-    - Updated NavigationContainer implementation
