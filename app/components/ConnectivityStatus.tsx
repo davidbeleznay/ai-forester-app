@@ -1,59 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS, SPACING } from '../config/constants';
-import { Wifi, WifiOff } from 'lucide-react-native';
 
-const ConnectivityStatus = () => {
-  const [isConnected, setIsConnected] = useState(false);
-
-  // Mock connectivity check for demonstration
-  // In a real app, we would use NetInfo from react-native-community/netinfo
+const ConnectivityStatus: React.FC = () => {
+  // In a real app, this would use NetInfo to check actual connectivity
+  // For demo purposes, we'll just simulate being offline
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  
   useEffect(() => {
-    // Simulate checking connectivity
-    const checkConnectivity = () => {
-      // Mock implementation - randomly set connection status 
-      // In production, this would use real network status checks
-      setIsConnected(Math.random() > 0.3); // 70% chance of being online for demo
-    };
-
-    // Check connectivity initially
-    checkConnectivity();
-
-    // Set up interval to periodically check connectivity
-    const interval = setInterval(checkConnectivity, 10000);
-
-    // Clean up interval on component unmount
+    // Simulate checking network connectivity
+    const interval = setInterval(() => {
+      // Randomly change connection status for demo purposes
+      setIsConnected(Math.random() > 0.7);
+    }, 5000);
+    
     return () => clearInterval(interval);
   }, []);
 
-  // If connected, don't show the banner
   if (isConnected) {
-    return null;
+    return null; // Don't show anything if connected
   }
 
-  // Show offline banner when not connected
   return (
     <View style={styles.container}>
-      <WifiOff size={16} color={COLORS.white} />
-      <Text style={styles.text}>You are currently offline. Some features may be limited.</Text>
+      <View style={styles.indicator} />
+      <Text style={styles.text}>Offline Mode - Data will be saved locally</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: COLORS.warning + '15',
+    borderRadius: 6,
+    padding: SPACING.sm,
+    marginBottom: SPACING.md,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: SPACING.sm,
+  },
+  indicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: COLORS.warning,
-    borderRadius: 8,
-    marginBottom: SPACING.md,
+    marginRight: SPACING.sm,
   },
   text: {
-    color: COLORS.white,
-    marginLeft: SPACING.sm,
-    fontSize: 12,
-    flex: 1,
+    fontSize: 13,
+    color: COLORS.warning,
+    fontWeight: '500',
   },
 });
 
