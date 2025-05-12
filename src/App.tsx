@@ -1,11 +1,11 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import HomeSettingsTabs from './components/HomeSettingsTabs';
+import AppNavigator from './navigation/AppNavigator';
 
 export default function App() {
   return (
     <>
-      <HomeSettingsTabs />
+      <AppNavigator />
       <StatusBar style="light" />
     </>
   );
